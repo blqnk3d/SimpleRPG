@@ -814,8 +814,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetCombatants() {
         elements.playerCombatant.classList.remove('attack-animation', 'hit-animation');
         elements.enemyCombatant.classList.remove('attack-animation', 'hit-animation');
-        elements.playerCombatant.style.backgroundImage = ''; // Clear any specific images
-        elements.enemyCombatant.style.backgroundImage = ''; // Clear any specific images
     }
 
     function animatePlayerAttack(callback) {
@@ -1007,8 +1005,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // --- Combat Visuals Initialization ---
         resetCombatants(); // Ensure a clean slate for combat visuals
-        elements.playerCombatant.style.backgroundImage = 'url("player.png")'; // Placeholder image for player
-        elements.enemyCombatant.style.backgroundImage = `url("monsters/${currentEnemy.name.toLowerCase().replace(/ /g, '-')}.png")`; // Image for monster
+        elements.combatantsDisplay.style.display = 'flex'; // Make the container visible
         elements.playerCombatant.textContent = 'YOU'; // Placeholder text
         elements.enemyCombatant.textContent = currentEnemy.name; // Placeholder text
         elements.playerCombatant.style.display = 'block';
@@ -1028,6 +1025,7 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.fleeButton.style.display = 'none';
             updateEnemyUI();
             resetCombatants(); // Clear combat visuals on successful flee
+            elements.combatantsDisplay.style.display = 'none';
             elements.playerCombatant.style.display = 'none';
             elements.enemyCombatant.style.display = 'none';
         } else {
@@ -1089,6 +1087,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 elements.fleeButton.style.display = 'none';
                 updateEnemyUI();
                 resetCombatants(); // Clear combat visuals on enemy defeat
+                elements.combatantsDisplay.style.display = 'none';
                 elements.playerCombatant.style.display = 'none';
                 elements.enemyCombatant.style.display = 'none';
                 elements.attackButton.disabled = false; // Re-enable if combat ends
@@ -1305,8 +1304,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 elements.combatantsDisplay.style.display = 'flex'; // Restore flex display
                 elements.playerCombatant.textContent = 'YOU'; // Restore text
                 elements.enemyCombatant.textContent = currentEnemy.name; // Restore text
-                elements.playerCombatant.style.backgroundImage = 'url("player.png")'; // Restore placeholder image
-                elements.enemyCombatant.style.backgroundImage = `url("monsters/${currentEnemy.name.toLowerCase().replace(/ /g, '-')}.png")`; // Restore monster image
             }
             updateUI();
         }
