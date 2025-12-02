@@ -1,0 +1,566 @@
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #1a1a1a;
+    color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+#game-container {
+    max-width: 1200px;
+    width: 90%;
+    border: 2px solid #666;
+    background-color: rgba(42, 42, 42, 0.9); /* Slightly transparent background */
+    backdrop-filter: blur(5px); /* Frosted glass effect */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 25px rgba(0, 255, 153, 0.3), 0 0 10px rgba(0, 0, 0, 0.5); /* Enhanced shadow with green glow */
+    display: grid;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+        "header"
+        "content";
+    gap: 20px;
+    transition: box-shadow 0.3s ease-in-out; /* Smooth transition for potential changes */
+}
+
+#header h1 {
+    margin: 0;
+    color: #00ff99;
+    text-shadow: 0 0 8px rgba(0, 255, 153, 0.7); /* Green glow for title */
+}
+
+h2 {
+    color: #00ff99;
+    text-shadow: 0 0 5px rgba(0, 255, 153, 0.5);
+}
+
+strong {
+    color: #00ff99;
+    text-shadow: 0 0 3px rgba(0, 255, 153, 0.3);
+}
+
+#tabs {
+    margin-top: 10px;
+    border-bottom: 2px solid #666;
+    padding-bottom: 10px;
+}
+
+.tab-button {
+    background-color: #333;
+    color: #f0f0f0;
+    border: 1px solid #555;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.tab-button.active {
+    background-color: #00ff99;
+    color: #1a1a1a;
+    border-bottom: 1px solid #00ff99;
+    box-shadow: 0 2px 8px rgba(0, 255, 153, 0.5); /* Active tab glow */
+}
+
+.tab-button:hover:not(.active) {
+    background-color: #555;
+    border-color: #00ff99;
+    box-shadow: 0 2px 8px rgba(0, 255, 153, 0.3);
+}
+
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: grid; /* Use grid for both tabs */
+    animation: fadeIn 0.5s ease-out; /* Fade in animation for tab content */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#adventure-tab {
+    grid-template-columns: 1fr 1.5fr 1fr; /* player-status (spanning all) | enemy-stats | log | controls */
+    grid-template-rows: auto auto 1fr; /* player-status | enemy-stats | log (controls spans last two) */
+    grid-template-areas:
+        "player-status player-status player-status"
+        "enemy-stats   log           controls"
+        "enemy-stats   log           controls";
+    gap: 20px;
+}
+
+#inventory-tab {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 20px;
+}
+#inventory-container {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 20px;
+}
+
+#equipped-items {
+    background-color: #333;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+#equipped-items h3 {
+    margin-top: 0;
+}
+
+.equipped-slot {
+    padding: 10px;
+    background-color: #444;
+    border-radius: 3px;
+    margin-bottom: 10px;
+}
+
+#inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    background-color: #333;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.inventory-item {
+    background-color: #444;
+    padding: 10px;
+    border-radius: 3px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.inventory-item:hover {
+    background-color: #555;
+    transform: translateY(-2px); /* Lift effect */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+#stats-tab { /* New stats tab layout */
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+        "stats";
+    gap: 20px;
+}
+
+#stats-container {
+    grid-area: stats;
+    background-color: #333;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+#player-status-adventure {
+    grid-area: player-status;
+    background-color: #333;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px; /* Space below it */
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+#player-status-adventure p {
+    margin: 5px 10px;
+}
+
+#hp-bar-container-adventure {
+    width: 150px; /* Fixed width for consistency */
+    height: 15px;
+    background-color: #555;
+    border-radius: 3px;
+    margin: 5px 10px;
+    border: 1px solid #444;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+#hp-bar-adventure {
+    width: 100%;
+    height: 100%;
+    background-color: #00ff00;
+    border-radius: 3px;
+    transition: width 0.5s ease-out, background-color 0.5s ease-out;
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+}
+/* HP Bar color change on low HP - Adventure Tab */
+#hp-bar-adventure.low-hp {
+    background-color: #ffcc00; /* Yellow */
+    box-shadow: 0 0 5px rgba(255, 204, 0, 0.7);
+}
+
+#hp-bar-adventure.critical-hp {
+    background-color: #ff0000; /* Red */
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.9);
+}
+
+#stats p {
+    margin: 8px 0;
+}
+
+#hp-bar-container {
+    width: 100%;
+    height: 15px;
+    background-color: #555;
+    border-radius: 3px;
+    margin-top: 5px;
+    border: 1px solid #444;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+#hp-bar {
+    width: 100%;
+    height: 100%;
+    background-color: #00ff00;
+    border-radius: 3px;
+    transition: width 0.5s ease-out, background-color 0.5s ease-out; /* Slower and smoother */
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.7); /* Green glow for HP bar */
+}
+/* HP Bar color change on low HP */
+#hp-bar.low-hp {
+    background-color: #ffcc00; /* Yellow */
+    box-shadow: 0 0 5px rgba(255, 204, 0, 0.7);
+}
+
+#hp-bar.critical-hp {
+    background-color: #ff0000; /* Red */
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.9);
+}
+
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-button {
+    background-color: #00ff99;
+    color: #1a1a1a;
+    border: none;
+    width: 25px;
+    height: 25px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.stat-button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.stat-button:not(:disabled):hover {
+    background-color: #55ffcc;
+    transform: scale(1.1); /* Pop effect */
+    box-shadow: 0 4px 10px rgba(0, 255, 153, 0.5);
+}
+
+#log-container {
+    grid-area: log;
+    background-color: #333;
+    padding: 15px;
+    border-radius: 5px;
+    min-height: 200px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+#log {
+    height: 250px;
+    overflow-y: auto;
+    border: 1px solid #444;
+    padding: 10px;
+    background-color: #1a1a1a;
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column-reverse;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.7);
+}
+
+#log p {
+    margin: 5px 0;
+}
+
+#enemy-stats-container {
+    grid-area: enemy-stats; /* Assign to its own grid area */
+    background-color: #333;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #444;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+#enemy-hp-bar-container {
+    width: 100%;
+    height: 12px;
+    background-color: #555;
+    border-radius: 3px;
+    margin-top: 5px;
+    border: 1px solid #444;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+#enemy-hp-bar {
+    width: 100%;
+    height: 100%;
+    background-color: #ff0000;
+    border-radius: 3px;
+    transition: width 0.5s ease-out; /* Slower and smoother */
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.7); /* Red glow for enemy HP bar */
+}
+
+#controls-container {
+    grid-area: controls;
+    background-color: #333;
+    padding: 15px;
+    border-radius: 5px;
+    text-align: center;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+button {
+    background-color: #00ff99;
+    color: #1a1a1a;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-family: 'Courier New', Courier, monospace;
+    cursor: pointer;
+    border-radius: 5px;
+    margin: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+button:hover {
+    background-color: #55ffcc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 255, 153, 0.5);
+}
+
+button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+#game-over-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#game-over-screen {
+    background-color: #2a2a2a;
+    border: 2px solid #ff0000;
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+}
+
+#game-over-screen h2 {
+    color: #ff0000;
+    font-size: 3em;
+    margin-bottom: 20px;
+}
+
+#game-over-screen p {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+}
+
+#retry-button {
+    background-color: #ff0000;
+    color: #fff;
+    padding: 15px 30px;
+    font-size: 1.5em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#retry-button:hover {
+    background-color: #cc0000;
+}
+
+.inventory-item strong {
+    color: #00ff99;
+    font-size: 1.1em;
+}
+
+.inventory-item br {
+    display: block;
+    margin-bottom: 2px; /* Small space between lines */
+}
+
+.inventory-item span, .inventory-item p {
+    font-size: 0.85em;
+    color: #ccc;
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Custom Dialog Overlay */
+#custom-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Same as game-over-overlay */
+}
+
+#custom-dialog-box {
+    background-color: #2a2a2a;
+    border: 2px solid #00ff99;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0, 255, 153, 0.5); /* Green glow */
+    max-width: 400px;
+    color: #f0f0f0;
+}
+
+#custom-dialog-message {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+#custom-dialog-buttons button {
+    background-color: #00ff99;
+    color: #1a1a1a;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 5px;
+    margin: 0 10px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+#custom-dialog-buttons button:hover {
+    background-color: #55ffcc;
+}
+
+.unavailable-item {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #666;
+}
+
+.unavailable-item:hover {
+    background-color: #666; /* Prevent hover effect on unavailable items */
+}
+
+/* Damage Taken Animation */
+@keyframes damageFlash {
+    0% { filter: brightness(1.5); }
+    50% { filter: brightness(0.8); }
+    100% { filter: brightness(1.5); }
+}
+
+#game-container.damage-taken {
+    animation: damageFlash 0.3s ease-out;
+}
+
+/* Custom Context Menu */
+.context-menu {
+    position: absolute;
+    z-index: 1000;
+    width: 150px;
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    display: none;
+}
+
+.context-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 5px;
+}
+
+.context-menu ul li {
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #eee;
+}
+
+.context-menu ul li:hover {
+    background-color: #4a4a4a;
+}
+
+#shop-items-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center; /* Center items horizontally */
+    background-color: #333;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    max-width: 800px; /* Limit width */
+    margin: 0 auto; /* Center the grid itself */
+}
+
+#shop-items-grid .inventory-item {
+    width: 150px; /* Make items smaller */
+    flex-shrink: 0; /* Prevent items from shrinking */
+    padding: 8px; /* Adjust padding for smaller items */
+    font-size: 0.9em; /* Smaller font size */
+}
+
+#shop-items-grid .inventory-item strong {
+    font-size: 1em; /* Adjust font size for item name */
+}
+
+#shop-items-grid .inventory-item br {
+    margin-bottom: 1px;
+}
+
+#shop-items-grid .inventory-item span,
+#shop-items-grid .inventory-item p {
+    font-size: 0.8em; /* Adjust font size for details */
+}

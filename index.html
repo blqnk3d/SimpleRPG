@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple RPG</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="header">
+            <h1>Simple RPG</h1>
+            <span id="player-name-display" style="font-size: 0.9em; color: #00ff99; margin-left: 10px;"></span>
+            <div id="tabs">
+                <button class="tab-button active" data-tab="adventure">Abenteuer</button>
+                <button class="tab-button" data-tab="inventory">Inventar</button>
+                <button class="tab-button" data-tab="shop">Shop</button>
+                <button class="tab-button" data-tab="stats">Stats</button>
+            </div>
+            <p id="game-version" style="text-align: right; font-size: 0.8em; margin-top: 10px; color: #999;">Version: 1.0.0</p>
+        </div>
+
+        <div id="adventure-tab" class="tab-content active">
+            <div id="player-status-adventure">
+                <p><strong>Level:</strong> <span id="player-level-adventure">1</span></p>
+                <p><strong>LP:</strong> <span id="player-hp-adventure">10</span> / <span id="player-max-hp-adventure">10</span></p>
+                <div id="hp-bar-container-adventure">
+                    <div id="hp-bar-adventure"></div>
+                </div>
+                <p><strong>EP:</strong> <span id="player-xp-adventure">0</span> / <span id="xp-to-next-level-adventure">10</span></p>
+            </div>
+            <div id="log-container">
+                <h2>Log</h2>
+                <div id="log">
+                    <p>Willkommen beim Simple RPG! Klicke auf 'Erkunden', um zu beginnen.</p>
+                </div>
+            </div>
+
+            <div id="enemy-stats-container" style="display: none;">
+                <p><strong>Gegner:</strong> <span id="enemy-name"></span> (Level <span id="enemy-level-display"></span>)</p>
+                <p><strong>LP:</strong> <span id="enemy-hp"></span> / <span id="enemy-max-hp"></span></p>
+                <div id="enemy-hp-bar-container">
+                    <div id="enemy-hp-bar"></div>
+                </div>
+                <p><strong>Stärke:</strong> <span id="enemy-strength-display"></span></p>
+                <p><strong>Verteidigung:</strong> <span id="enemy-defense-display"></span></p>
+                <p><strong>EP-Belohnung:</strong> <span id="enemy-xp-reward-display"></span></p>
+            </div>
+
+
+            <div id="controls-container">
+                <h2>Aktionen</h2>
+                <button id="explore-button">Erkunden</button>
+                <button id="attack-button" style="display: none;">Angreifen</button>
+                <button id="info-button" style="display: none;">Info</button>
+                <button id="flee-button" style="display: none;">Fliehen</button>
+                <button id="clear-save-button">Speicherdaten löschen</button>
+                <button id="dev-give-items-button">Dev: Gegenstände geben</button>
+            </div>
+        </div>
+
+        <div id="inventory-tab" class="tab-content">
+            <h2>Inventar</h2>
+            <div id="inventory-container">
+                <div id="equipped-items">
+                    <h3>Angelegt</h3>
+                    <div class="equipped-slot" id="equipped-weapon">Waffe: Keine</div>
+                    <div class="equipped-slot" id="equipped-armor">Rüstung: Keine</div>
+                </div>
+                <div id="inventory-grid">
+                    <!-- Inventory items will be added here by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <div id="shop-tab" class="tab-content">
+            <h2>Shop</h2>
+            <div id="player-gold">Gold: <span id="gold-display">0</span></div>
+            <div id="shop-items-grid">
+                <!-- Shop items will be added here by JavaScript -->
+            </div>
+        </div>
+
+        <div id="stats-tab" class="tab-content">
+            <div id="stats-container">
+                <h2>Charakter</h2>
+                <div id="stats">
+                    <p><strong>Level:</strong> <span id="player-level">1</span></p>
+                    <p><strong>EP:</strong> <span id="player-xp">0</span> / <span id="xp-to-next-level">10</span></p>
+                    <p><strong>LP:</strong> <span id="player-hp">10</span> / <span id="player-max-hp">10</span></p>
+                    <div id="hp-bar-container">
+                        <div id="hp-bar"></div>
+                    </div>
+                    <hr>
+                    <p><strong>Verfügbare Punkte:</strong> <span id="stat-points">0</span></p>
+                    <div class="stat-row">
+                        <p><strong>Stärke:</strong> <span id="player-strength">1</span></p>
+                        <button class="stat-button" data-stat="strength" disabled>+</button>
+                    </div>
+                    <div class="stat-row">
+                        <p><strong>Verteidigung:</strong> <span id="player-defense">1</span></p>
+                        <button class="stat-button" data-stat="defense" disabled>+</button>
+                    </div>
+                    <div class="stat-row">
+                        <p><strong>Angriffsgeschw.:</strong> <span id="player-attack-speed">1</span></p>
+                        <button class="stat-button" data-stat="attackSpeed" disabled>+</button>
+                    </div>
+                                     <div class="stat-row">
+                                        <p><strong>Max LP:</strong> <span id="player-max-hp-stat">10</span></p>
+                                        <button class="stat-button" data-stat="maxHp" disabled>+</button>
+                                    </div>
+                                    <button id="fast-heal-button" style="display: none;">Schnell heilen</button>
+                                    <hr>
+                                    <button id="respec-button" style="display: none;">Statistiken zurücksetzen</button>
+                                </div>            </div>
+        </div>
+    </div>
+
+    <div id="game-over-overlay" style="display: none;">
+        <div id="game-over-screen">
+            <h2>Game Over!</h2>
+            <p>Du wurdest besiegt.</p>
+            <button id="retry-button">Neustart</button>
+        </div>
+    </div>
+
+    <div id="custom-dialog-overlay" style="display: none;">
+        <div id="custom-dialog-box">
+            <p id="custom-dialog-message"></p>
+            <div id="custom-dialog-buttons">
+                <button id="custom-dialog-confirm">Ja</button>
+                <button id="custom-dialog-cancel">Nein</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-overlay" style="display: flex;"> <!-- display: flex initially to show it -->
+        <div id="login-screen">
+            <h2>Willkommen!</h2>
+            <p>Gib deinen Namen ein, um zu beginnen:</p>
+            <input type="text" id="player-name-input" placeholder="Spielername">
+            <button id="start-game-button">Spiel starten</button>
+        </div>
+    </div>
+
+    <div id="custom-context-menu" class="context-menu" style="display: none;">
+        <ul>
+            <li id="context-sell">Verkaufen</li>
+            <li id="context-destroy">Zerstören</li>
+        </ul>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
