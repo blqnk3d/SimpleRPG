@@ -634,15 +634,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createEnemy() {
-        const discoverableMonsters = monsters.filter(m => m.level <= player.level + 1);
-        const randomMonster = discoverableMonsters[Math.floor(Math.random() * discoverableMonsters.length)];
+        let randomMonster;
+
+        // Grace period for levels 1 & 2
+        if (player.level <= 2) {
+            randomMonster = monsters.find(m => m.name === 'Schleim');
+        } else {
+            const discoverableMonsters = monsters.filter(m => m.level <= player.level + 1);
+            randomMonster = discoverableMonsters[Math.floor(Math.random() * discoverableMonsters.length)];
+        }
         
         // Make a copy to avoid modifying the original monster object
         const enemy = { ...randomMonster };
-        // Slightly randomize stats to make them less predictable
-        enemy.hp = Math.floor(enemy.hp * (1 + (Math.random() - 0.5) * 0.2));
-        enemy.strength = Math.floor(enemy.strength * (1 + (Math.random() - 0.5) * 0.2));
-        enemy.defense = Math.floor(enemy.defense * (1 + (Math.random() - 0.5) * 0.2));
+
+        // Weaken the slime during the grace period
+        if (player.level <= 2 && enemy.name === 'Schleim') {
+            enemy.hp = Math.floor(enemy.hp * 0.75); // Reduce HP
+            enemy.strength = Math.max(1, Math.floor(enemy.strength * 0.5)); // Reduce strength
+            enemy.xp = Math.floor(enemy.xp * 0.75); // Reduce XP
+        } else {
+            // Slightly randomize stats for other monsters to make them less predictable
+            enemy.hp = Math.floor(enemy.hp * (1 + (Math.random() - 0.5) * 0.2));
+            enemy.strength = Math.floor(enemy.strength * (1 + (Math.random() - 0.5) * 0.2));
+            enemy.defense = Math.floor(enemy.defense * (1 + (Math.random() - 0.5) * 0.2));
+        }
+
         enemy.maxHp = enemy.hp; // Set maxHp for the fight
 
         return enemy;
