@@ -36,6 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
         inventoryGrid: document.getElementById('inventory-grid'),
         equippedWeapon: document.getElementById('equipped-weapon'),
         equippedArmor: document.getElementById('equipped-armor'),
+        equippedRing1: document.getElementById('equipped-ring1'),
+        equippedRing2: document.getElementById('equipped-ring2'),
+        equippedNecklace: document.getElementById('equipped-necklace'),
         gameOverOverlay: document.getElementById('game-over-overlay'),
         retryButton: document.getElementById('retry-button'),
         gameContainer: document.getElementById('game-container'),
@@ -97,14 +100,14 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'Harpyie', level: 7, hp: 25, strength: 8, defense: 5, xp: 16, loot: [] },
         // Level 8-12
         { name: 'Ghul', level: 8, hp: 30, strength: 10, defense: 7, xp: 20, loot: [{ item: 'healing-potion', chance: 0.3 }] },
-        { name: 'Oger', level: 8, hp: 40, strength: 12, defense: 8, xp: 20, loot: [{ item: 'ogre-tooth', chance: 0.7 }, { item: 'morningstar', chance: 0.1 }] },
+        { name: 'Oger', level: 8, hp: 40, strength: 12, defense: 8, xp: 20, loot: [{ item: 'ogre-tooth', chance: 0.7 }, { item: 'morningstar', chance: 0.1 }, { item: 'ring-swiftness', chance: 0.1 }] },
         { name: 'Ork-Berserker', level: 8, hp: 35, strength: 14, defense: 6, xp: 22, loot: [{ item: 'great-axe', chance: 0.05 }, { item: 'iron-armor', chance: 0.15 }] },
         { name: 'Troll', level: 9, hp: 50, strength: 11, defense: 8, xp: 25, loot: [{ item: 'ogre-tooth', chance: 0.2 }] },
-        { name: 'Golem', level: 9, hp: 40, strength: 12, defense: 10, xp: 25, loot: [{ item: 'iron-armor', chance: 0.3 }] },
-        { name: 'Minotaurus', level: 10, hp: 55, strength: 15, defense: 9, xp: 30, loot: [{ item: 'great-axe', chance: 0.1 }] },
+        { name: 'Golem', level: 9, hp: 40, strength: 12, defense: 10, xp: 25, loot: [{ item: 'iron-armor', chance: 0.3 }, { item: 'necklace-protection', chance: 0.1 }] },
+        { name: 'Minotaurus', level: 10, hp: 55, strength: 15, defense: 9, xp: 30, loot: [{ item: 'great-axe', chance: 0.1 }, { item: 'ring-swiftness', chance: 0.1 }] },
         { name: 'Vampirbrut', level: 11, hp: 50, strength: 13, defense: 8, xp: 35, loot: [{ item: 'silver-sword', chance: 0.2 }] },
         { name: 'Wyvern', level: 12, hp: 65, strength: 16, defense: 10, xp: 45, loot: [] },
-        { name: 'Drache', level: 12, hp: 60, strength: 15, defense: 12, xp: 50, loot: [{ item: 'steel-sword', chance: 0.5 }, { item: 'steel-armor', chance: 0.5 }] },
+        { name: 'Drache', level: 12, hp: 60, strength: 15, defense: 12, xp: 50, loot: [{ item: 'steel-sword', chance: 0.5 }, { item: 'steel-armor', chance: 0.5 }, { item: 'necklace-protection', chance: 0.1 }] },
         // Level 13+
         { name: 'Feuerriese', level: 13, hp: 80, strength: 18, defense: 12, xp: 60, loot: [{ item: 'full-plate', chance: 0.1 }] },
         { name: 'Frostriese', level: 14, hp: 85, strength: 17, defense: 14, xp: 65, loot: [{ item: 'full-plate', chance: 0.15 }] },
@@ -149,6 +152,18 @@ document.addEventListener('DOMContentLoaded', () => {
         'ogre-tooth': { name: 'Ogerzahn', type: 'junk', sellPrice: 15 },
     };
 
+    const accessoriesToAdd = {
+        // Accessories
+        'ring-strength': { name: 'Ring der Stärke', type: 'accessory', slot: 'ring', strength: 2, sellPrice: 50, requirements: { level: 2 } },
+        'ring-defense': { name: 'Ring der Verteidigung', type: 'accessory', slot: 'ring', defense: 2, sellPrice: 50, requirements: { level: 2 } },
+        'necklace-health': { name: 'Amulett der Vitalität', type: 'accessory', slot: 'necklace', maxHp: 10, sellPrice: 75, requirements: { level: 3 } },
+        'ring-swiftness': { name: 'Ring der Schnelligkeit', type: 'accessory', slot: 'ring', attackSpeed: 1, sellPrice: 60, requirements: { attackSpeed: 2, level: 5 } }, // Example with multiple requirements
+        'necklace-protection': { name: 'Halskette des Schutzes', type: 'accessory', slot: 'necklace', defense: 3, sellPrice: 90, requirements: { defense: 5, level: 7 } },
+    };
+
+    // Merge new accessories into the existing items object
+    Object.assign(items, accessoriesToAdd);
+
     const shopItems = {
         // Level 1-2
         'rusty-sword': { levelRequired: 1, price: 15, stock: 3, initialStock: 3, restockInterval: 3600000, lastRestock: Date.now() },
@@ -169,6 +184,10 @@ document.addEventListener('DOMContentLoaded', () => {
         'splint-mail': { levelRequired: 9, price: 150, stock: 1, initialStock: 1, restockInterval: 12600000, lastRestock: Date.now() },
         'steel-armor': { levelRequired: 10, price: 150, stock: 1, initialStock: 1, restockInterval: 18000000, lastRestock: Date.now() },
         'elixir-strength': { levelRequired: 10, price: 500, stock: 1, initialStock: 1, restockInterval: 18000000, lastRestock: Date.now() },
+        // Accessories
+        'ring-strength': { levelRequired: 2, price: 75, stock: 2, initialStock: 2, restockInterval: 7200000, lastRestock: Date.now() },
+        'ring-defense': { levelRequired: 2, price: 75, stock: 2, initialStock: 2, restockInterval: 7200000, lastRestock: Date.now() },
+        'necklace-health': { levelRequired: 3, price: 100, stock: 1, initialStock: 1, restockInterval: 10800000, lastRestock: Date.now() },
     };
 
     const initialPlayerState = {
@@ -188,6 +207,9 @@ document.addEventListener('DOMContentLoaded', () => {
         equipped: {
             weapon: null,
             armor: null,
+            ring1: null,
+            ring2: null,
+            necklace: null,
         },
         coins: 0, // Initialize coins to 0
         playerName: "", // New property for player name
@@ -376,6 +398,24 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             elements.equippedArmor.textContent = 'Rüstung: Keine';
         }
+
+        if (player.equipped.ring1) {
+            elements.equippedRing1.textContent = `Ring 1: ${items[player.equipped.ring1].name}`;
+        } else {
+            elements.equippedRing1.textContent = 'Ring 1: Keine';
+        }
+
+        if (player.equipped.ring2) {
+            elements.equippedRing2.textContent = `Ring 2: ${items[player.equipped.ring2].name}`;
+        } else {
+            elements.equippedRing2.textContent = 'Ring 2: Keine';
+        }
+
+        if (player.equipped.necklace) {
+            elements.equippedNecklace.textContent = `Halskette: ${items[player.equipped.necklace].name}`;
+        } else {
+            elements.equippedNecklace.textContent = 'Halskette: Keine';
+        }
     }
 
     function updateShopUI() {
@@ -459,15 +499,17 @@ document.addEventListener('DOMContentLoaded', () => {
             attackSpeed: player.attackSpeed,
         };
 
-        if (player.equipped.weapon) {
-            const weapon = items[player.equipped.weapon];
-            stats.strength += weapon.strength || 0;
-            stats.attackSpeed += weapon.attackSpeed || 0;
-        }
-        if (player.equipped.armor) {
-            const armor = items[player.equipped.armor];
-            stats.defense += armor.defense || 0;
-            stats.attackSpeed += armor.attackSpeed || 0;
+        for (const slot in player.equipped) {
+            const itemKey = player.equipped[slot];
+            if (itemKey) {
+                const item = items[itemKey];
+                if (item) {
+                    stats.strength += item.strength || 0;
+                    stats.defense += item.defense || 0;
+                    stats.maxHp += item.maxHp || 0;
+                    stats.attackSpeed += item.attackSpeed || 0;
+                }
+            }
         }
         return stats;
     }
@@ -481,9 +523,15 @@ document.addEventListener('DOMContentLoaded', () => {
             let canEquip = true;
             let missingReqs = '';
             for (const req in item.requirements) {
-                if (player[req] < item.requirements[req]) {
+                // Handle level requirement explicitly as it's not a direct player stat
+                if (req === 'level') {
+                    if (player.level < item.requirements.level) {
+                        canEquip = false;
+                        missingReqs += `Level ${item.requirements.level}, `;
+                    }
+                } else if (player[req] < item.requirements[req]) {
                     canEquip = false;
-                    const statName = { strength: 'Stärke', defense: 'Verteidigung' }[req] || req;
+                    const statName = { strength: 'Stärke', defense: 'Verteidigung', attackSpeed: 'Angriffsgeschw.', maxHp: 'Max LP' }[req] || req;
                     missingReqs += `${statName} ${item.requirements[req]}, `;
                 }
             }
@@ -503,13 +551,83 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const currentEquipped = player.equipped[item.type];
-        if (currentEquipped) {
-            player.inventory.push(currentEquipped);
+        let equippedSlot = null;
+
+        if (item.type === 'weapon' || item.type === 'armor') {
+            equippedSlot = item.type;
+            if (player.equipped[equippedSlot] === itemKey) { // Already equipped
+                addLogMessage(`${item.name} ist bereits angelegt.`, 'yellow');
+                return;
+            }
+        } else if (item.type === 'accessory') {
+            if (item.slot === 'ring') {
+                if (!player.equipped.ring1) {
+                    equippedSlot = 'ring1';
+                } else if (!player.equipped.ring2) {
+                    equippedSlot = 'ring2';
+                } else {
+                    showChoiceDialog(
+                        `Beide Ring-Slots sind belegt. Möchtest du '${items[player.equipped.ring1].name}' oder '${items[player.equipped.ring2].name}' durch '${item.name}' ersetzen? (Ersetzt den ersten Ring-Slot)`,
+                        () => { // Confirm: replace ring1
+                            const oldItemKey = player.equipped.ring1;
+                            if (oldItemKey) player.inventory.push(oldItemKey); // Put old item back to inventory
+                            player.equipped.ring1 = itemKey;
+                            player.inventory = player.inventory.filter(i => i !== itemKey);
+                            addLogMessage(`Du hast ${item.name} angelegt und ${items[oldItemKey].name} in dein Inventar gelegt.`, 'green');
+                            updateUI();
+                        },
+                        () => { // Cancel: replace ring2
+                            showChoiceDialog(
+                                `Möchtest du '${items[player.equipped.ring2].name}' durch '${item.name}' ersetzen?`,
+                                () => {
+                                    const oldItemKey = player.equipped.ring2;
+                                    if (oldItemKey) player.inventory.push(oldItemKey); // Put old item back to inventory
+                                    player.equipped.ring2 = itemKey;
+                                    player.inventory = player.inventory.filter(i => i !== itemKey);
+                                    addLogMessage(`Du hast ${item.name} angelegt und ${items[oldItemKey].name} in dein Inventar gelegt.`, 'green');
+                                    updateUI();
+                                },
+                                () => {
+                                    addLogMessage(`Du hast dich entschieden, ${item.name} nicht anzulegen.`, 'yellow');
+                                    updateUI();
+                                }
+                            );
+                        }
+                    );
+                    return; // Exit after showing dialog
+                }
+            } else if (item.slot === 'necklace') {
+                if (!player.equipped.necklace) {
+                    equippedSlot = 'necklace';
+                } else {
+                    showChoiceDialog(
+                        `Der Halsketten-Slot ist belegt. Möchtest du '${items[player.equipped.necklace].name}' durch '${item.name}' ersetzen?`,
+                        () => { // Confirm: replace necklace
+                            const oldItemKey = player.equipped.necklace;
+                            if (oldItemKey) player.inventory.push(oldItemKey); // Put old item back to inventory
+                            player.equipped.necklace = itemKey;
+                            player.inventory = player.inventory.filter(i => i !== itemKey);
+                            addLogMessage(`Du hast ${item.name} angelegt und ${items[oldItemKey].name} in dein Inventar gelegt.`, 'green');
+                            updateUI();
+                        },
+                        () => { // Cancel
+                            addLogMessage(`Du hast dich entschieden, ${item.name} nicht anzulegen.`, 'yellow');
+                            updateUI();
+                        }
+                    );
+                    return; // Exit after showing dialog
+                }
+            }
         }
 
-        player.equipped[item.type] = itemKey;
-        player.inventory = player.inventory.filter(i => i !== itemKey);
+        if (equippedSlot) {
+            const oldItemKey = player.equipped[equippedSlot];
+            if (oldItemKey) player.inventory.push(oldItemKey); // Put old item back to inventory
+
+            player.equipped[equippedSlot] = itemKey;
+            player.inventory = player.inventory.filter(i => i !== itemKey);
+            addLogMessage(`Du hast ${item.name} angelegt.`, 'green');
+        }
 
         updateInventoryUI();
         updateUI();
@@ -1131,7 +1249,10 @@ document.addEventListener('DOMContentLoaded', () => {
             player = JSON.parse(savedState);
             // Ensure new properties exist for old saves
             if (!player.inventory) player.inventory = [];
-            if (!player.equipped) player.equipped = { weapon: null, armor: null };
+            if (!player.equipped) player.equipped = { weapon: null, armor: null, ring1: null, ring2: null, necklace: null };
+            if (player.equipped.ring1 === undefined) player.equipped.ring1 = null;
+            if (player.equipped.ring2 === undefined) player.equipped.ring2 = null;
+            if (player.equipped.necklace === undefined) player.equipped.necklace = null;
             if (player.coins === undefined) player.coins = 0;
             if (!player.playerName) player.playerName = "";
             if (!player.shopRotation) player.shopRotation = [];
