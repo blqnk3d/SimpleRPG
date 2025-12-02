@@ -66,7 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
         contextDestroy: document.getElementById('context-destroy'),
         // Combat Visuals
         playerCombatant: document.getElementById('player-combatant'),
-        enemyCombatant: document.getElementById('enemy-combatant')
+        enemyCombatant: document.getElementById('enemy-combatant'),
+        combatantsDisplay: document.getElementById('combatants-display') // Add this line
     };
 
     // --- Game State ---
@@ -1172,6 +1173,20 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             elements.loginOverlay.style.display = 'none';
             elements.gameContainer.style.display = 'grid';
+            
+            if (!currentEnemy) { // If no enemy is present, hide combat visuals
+                elements.playerCombatant.style.display = 'none';
+                elements.enemyCombatant.style.display = 'none';
+                elements.combatantsDisplay.style.display = 'none';
+            } else { // If an enemy is present (e.g., loaded from save)
+                elements.playerCombatant.style.display = 'block';
+                elements.enemyCombatant.style.display = 'block';
+                elements.combatantsDisplay.style.display = 'flex'; // Restore flex display
+                elements.playerCombatant.textContent = 'YOU'; // Restore text
+                elements.enemyCombatant.textContent = currentEnemy.name; // Restore text
+                elements.playerCombatant.style.backgroundImage = 'url("player.png")'; // Restore placeholder image
+                elements.enemyCombatant.style.backgroundImage = `url("monsters/${currentEnemy.name.toLowerCase().replace(/ /g, '-')}.png")`; // Restore monster image
+            }
             updateUI();
         }
         elements.gameVersion.textContent = `Version: ${GAME_VERSION}`;

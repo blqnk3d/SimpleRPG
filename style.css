@@ -124,13 +124,19 @@ strong {
     color: #fff;
     font-size: 1.2em;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    transition: transform 0.1s ease-out, background-color 0.1s ease-out;
+    transition: transform 0.1s ease-out, background-color 0.1s ease-out, box-shadow 0.3s ease-in-out;
     position: relative;
+    background-size: cover; /* Ensure background images cover the area */
+    background-position: center; /* Center background images */
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.7); /* Text shadow for better readability */
+}
+
+.combatant:hover {
+    box-shadow: 0 0 15px rgba(0, 255, 153, 0.7), 0 0 25px rgba(0, 255, 153, 0.3); /* Enhanced glow on hover */
 }
 
 #player-combatant {
     background-color: #007bff; /* Blue for player */
-    /* left: -20px; */ /* Initial offset */
 }
 
 #enemy-combatant {
@@ -541,23 +547,23 @@ button:disabled {
 }
 
 @keyframes attackAnimationPlayer {
-    0% { transform: translateX(0); }
-    50% { transform: translateX(20px); } /* Move forward */
-    100% { transform: translateX(0); }
+    0% { transform: translateX(0) scale(1) rotate(0deg); }
+    50% { transform: translateX(25px) scale(1.05) rotate(2deg); } /* Move forward, slightly bigger, slight rotation */
+    100% { transform: translateX(0) scale(1) rotate(0deg); }
 }
 
 @keyframes attackAnimationEnemy {
-    0% { transform: translateX(0); }
-    50% { transform: translateX(-20px); } /* Move forward from enemy perspective */
-    100% { transform: translateX(0); }
+    0% { transform: translateX(0) scale(1) rotate(0deg); }
+    50% { transform: translateX(-25px) scale(1.05) rotate(-2deg); } /* Move forward from enemy perspective, slightly bigger, slight rotation */
+    100% { transform: translateX(0) scale(1) rotate(0deg); }
 }
 
 @keyframes hitAnimation {
-    0% { transform: translateX(0); background-color: rgba(255, 0, 0, 0.5); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); background-color: rgba(255, 0, 0, 0.8); }
-    75% { transform: translateX(-5px); }
-    100% { transform: translateX(0); background-color: transparent; }
+    0% { transform: translateX(0) scale(1); background-color: rgba(255, 0, 0, 0.2); filter: brightness(1); }
+    25% { transform: translateX(-5px) scale(0.98); background-color: rgba(255, 0, 0, 0.8); filter: brightness(1.5); }
+    50% { transform: translateX(5px) scale(1.02); background-color: rgba(255, 0, 0, 0.8); filter: brightness(1.5); }
+    75% { transform: translateX(-5px) scale(0.98); background-color: rgba(255, 0, 0, 0.8); filter: brightness(1.5); }
+    100% { transform: translateX(0) scale(1); background-color: transparent; filter: brightness(1); }
 }
 
 .combatant.attack-animation {
