@@ -63,7 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Context Menu
         contextMenu: document.getElementById('custom-context-menu'),
         contextSell: document.getElementById('context-sell'),
-        contextDestroy: document.getElementById('context-destroy')
+        contextDestroy: document.getElementById('context-destroy'),
+        // Combat Visuals
+        playerCombatant: document.getElementById('player-combatant'),
+        enemyCombatant: document.getElementById('enemy-combatant')
     };
 
     // --- Game State ---
@@ -688,6 +691,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- Combat Animation Functions ---
+    function resetCombatants() {
+        elements.playerCombatant.classList.remove('attack-animation', 'hit-animation');
+        elements.enemyCombatant.classList.remove('attack-animation', 'hit-animation');
+        elements.playerCombatant.style.backgroundImage = ''; // Clear any specific images
+        elements.enemyCombatant.style.backgroundImage = ''; // Clear any specific images
+    }
+
+    function animatePlayerAttack(callback) {
+        elements.playerCombatant.classList.add('attack-animation');
+        elements.enemyCombatant.classList.add('hit-animation');
+        setTimeout(() => {
+            elements.playerCombatant.classList.remove('attack-animation');
+            elements.enemyCombatant.classList.remove('hit-animation');
+            if (callback) callback();
+        }, 300); // Animation duration
+    }
+
+    function animateEnemyAttack(callback) {
+        elements.enemyCombatant.classList.add('attack-animation');
+        elements.playerCombatant.classList.add('hit-animation');
+        setTimeout(() => {
+            elements.enemyCombatant.classList.remove('attack-animation');
+            elements.playerCombatant.classList.remove('hit-animation');
+            if (callback) callback();
+        }, 300); // Animation duration
+    }
+
     function addLogMessage(message, color = '#f0f0f0') {
         const p = document.createElement('p');
         p.textContent = message;
@@ -854,6 +885,15 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.infoButton.style.display = 'inline-block';
         elements.fleeButton.style.display = 'inline-block';
         updateEnemyUI();
+        
+        // --- Combat Visuals Initialization ---
+        resetCombatants(); // Ensure a clean slate for combat visuals
+        elements.playerCombatant.style.backgroundImage = 'url("player.png")'; // Placeholder image for player
+        elements.enemyCombatant.style.backgroundImage = `url("monsters/${currentEnemy.name.toLowerCase().replace(/ /g, '-')}.png")`; // Image for monster
+        elements.playerCombatant.textContent = 'YOU'; // Placeholder text
+        elements.enemyCombatant.textContent = currentEnemy.name; // Placeholder text
+        elements.playerCombatant.style.display = 'block';
+        elements.enemyCombatant.style.display = 'block';
     }
 
     function flee() {
@@ -868,73 +908,89 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.infoButton.style.display = 'none';
             elements.fleeButton.style.display = 'none';
             updateEnemyUI();
+            resetCombatants(); // Clear combat visuals on successful flee
+            elements.playerCombatant.style.display = 'none';
+            elements.enemyCombatant.style.display = 'none';
         } else {
             addLogMessage('Du konntest nicht fliehen!', 'red');
             // Enemy gets a free attack if flee fails
-            const playerStats = calculatePlayerStats();
-            const enemyDamage = Math.max(1, currentEnemy.strength - playerStats.defense + Math.floor(Math.random() * 2));
-            player.hp = Math.max(0, player.hp - enemyDamage);
-            damageFlash(elements.gameContainer); // Flash on damage
-            addLogMessage(`${currentEnemy.name} greift an und verursacht ${enemyDamage} Schaden, während du fliehen wolltest! Du hast ${player.hp} LP übrig.`, 'red');
-            updateUI();
-            if (player.hp === 0) {
-                gameOver();
-            }
+            animateEnemyAttack(() => { // Animate enemy attack on failed flee
+                const playerStats = calculatePlayerStats();
+                const enemyDamage = Math.max(1, currentEnemy.strength - playerStats.defense + Math.floor(Math.random() * 2));
+                player.hp = Math.max(0, player.hp - enemyDamage);
+                damageFlash(elements.gameContainer); // Flash on damage
+                addLogMessage(`${currentEnemy.name} greift an und verursacht ${enemyDamage} Schaden, während du fliehen wolltest! Du hast ${player.hp} LP übrig.`, 'red');
+                updateUI();
+                if (player.hp === 0) {
+                    gameOver();
+                }
+            });
         }
     }
 
     function attack() {
         if (!currentEnemy) return;
 
-        const playerStats = calculatePlayerStats();
+        elements.attackButton.disabled = true; // Disable attack button during animation
 
-        // Player attacks enemy
-        const playerDamage = Math.max(1, playerStats.strength - currentEnemy.defense + Math.floor(Math.random() * 3));
-        currentEnemy.hp = Math.max(0, currentEnemy.hp - playerDamage);
-        addLogMessage(`Du greifst an und verursachst ${playerDamage} Schaden. ${currentEnemy.name} hat ${currentEnemy.hp} LP übrig.`, '#00ff99');
-        updateEnemyUI();
+        animatePlayerAttack(() => {
+            const playerStats = calculatePlayerStats();
 
-        if (currentEnemy.hp === 0) {
-            addLogMessage(`Du hast den ${currentEnemy.name} besiegt!`, 'green');
-            gainXP(currentEnemy.xp);
-
-            // Coin drop
-            const coinsDropped = Math.floor(Math.random() * 3); // 0, 1, or 2 coins
-            if (coinsDropped > 0) {
-                player.coins += coinsDropped;
-                addLogMessage(`Der ${currentEnemy.name} hat ${coinsDropped} Gold fallen gelassen!`, 'gold');
-            }
-
-            // Loot drop
-            if (currentEnemy.loot) {
-                currentEnemy.loot.forEach(lootItem => {
-                    if (Math.random() < lootItem.chance) {
-                        player.inventory.push(lootItem.item);
-                        addLogMessage(`Der ${currentEnemy.name} hat ${items[lootItem.item].name} fallen gelassen!`, 'gold');
-                    }
-                });
-            }
-
-            currentEnemy = null;
-            elements.exploreButton.style.display = 'inline-block';
-            elements.attackButton.style.display = 'none';
-            elements.infoButton.style.display = 'none';
-            elements.fleeButton.style.display = 'none';
+            // Player attacks enemy
+            const playerDamage = Math.max(1, playerStats.strength - currentEnemy.defense + Math.floor(Math.random() * 3));
+            currentEnemy.hp = Math.max(0, currentEnemy.hp - playerDamage);
+            addLogMessage(`Du greifst an und verursachst ${playerDamage} Schaden. ${currentEnemy.name} hat ${currentEnemy.hp} LP übrig.`, '#00ff99');
             updateEnemyUI();
-            return;
-        }
 
-        // Enemy attacks player
-        const enemyDamage = Math.max(1, currentEnemy.strength - playerStats.defense + Math.floor(Math.random() * 2));
-        player.hp = Math.max(0, player.hp - enemyDamage);
-        damageFlash(elements.gameContainer); // Flash on damage
-        addLogMessage(`${currentEnemy.name} greift an und verursacht ${enemyDamage} Schaden. Du hast ${player.hp} LP übrig.`, 'red');
+            if (currentEnemy.hp === 0) {
+                addLogMessage(`Du hast den ${currentEnemy.name} besiegt!`, 'green');
+                gainXP(currentEnemy.xp);
 
-        updateUI();
+                // Coin drop
+                const coinsDropped = Math.floor(Math.random() * 3); // 0, 1, or 2 coins
+                if (coinsDropped > 0) {
+                    player.coins += coinsDropped;
+                    addLogMessage(`Der ${currentEnemy.name} hat ${coinsDropped} Gold fallen gelassen!`, 'gold');
+                }
 
-        if (player.hp === 0) {
-            gameOver();
-        }
+                // Loot drop
+                if (currentEnemy.loot) {
+                    currentEnemy.loot.forEach(lootItem => {
+                        if (Math.random() < lootItem.chance) {
+                            player.inventory.push(lootItem.item);
+                            addLogMessage(`Der ${currentEnemy.name} hat ${items[lootItem.item].name} fallen gelassen!`, 'gold');
+                        }
+                    });
+                }
+
+                currentEnemy = null;
+                elements.exploreButton.style.display = 'inline-block';
+                elements.attackButton.style.display = 'none';
+                elements.infoButton.style.display = 'none';
+                elements.fleeButton.style.display = 'none';
+                updateEnemyUI();
+                resetCombatants(); // Clear combat visuals on enemy defeat
+                elements.playerCombatant.style.display = 'none';
+                elements.enemyCombatant.style.display = 'none';
+                elements.attackButton.disabled = false; // Re-enable if combat ends
+                return;
+            }
+
+            // If enemy is not defeated, enemy attacks player
+            animateEnemyAttack(() => {
+                const enemyDamage = Math.max(1, currentEnemy.strength - playerStats.defense + Math.floor(Math.random() * 2));
+                player.hp = Math.max(0, player.hp - enemyDamage);
+                damageFlash(elements.gameContainer); // Flash on damage
+                addLogMessage(`${currentEnemy.name} greift an und verursacht ${enemyDamage} Schaden. Du hast ${player.hp} LP übrig.`, 'red');
+
+                updateUI();
+                elements.attackButton.disabled = false; // Re-enable after enemy attack
+
+                if (player.hp === 0) {
+                    gameOver();
+                }
+            });
+        });
     }
     
     function useStatPoint(stat) {

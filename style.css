@@ -89,13 +89,53 @@ strong {
 }
 
 #adventure-tab {
-    grid-template-columns: 1fr 1.5fr 1fr; /* player-status (spanning all) | enemy-stats | log | controls */
-    grid-template-rows: auto auto 1fr; /* player-status | enemy-stats | log (controls spans last two) */
+    grid-template-columns: 1fr 1.5fr 1fr;
+    grid-template-rows: auto auto auto 1fr; /* Added one more 'auto' for combat-visuals */
     grid-template-areas:
         "player-status player-status player-status"
+        "combat-visuals combat-visuals combat-visuals" /* New row for combat visuals */
         "enemy-stats   log           controls"
         "enemy-stats   log           controls";
     gap: 20px;
+}
+
+#combatants-display {
+    grid-area: combat-visuals; /* Assign to new grid area */
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    height: 150px; /* Adjust as needed */
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.combatant {
+    width: 80px;
+    height: 120px;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #fff;
+    font-size: 1.2em;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s ease-out, background-color 0.1s ease-out;
+    position: relative;
+}
+
+#player-combatant {
+    background-color: #007bff; /* Blue for player */
+    /* left: -20px; */ /* Initial offset */
+}
+
+#enemy-combatant {
+    background-color: #dc3545; /* Red for enemy */
+    /* right: -20px; */ /* Initial offset */
 }
 
 #inventory-tab {
@@ -498,6 +538,46 @@ button:disabled {
     0% { filter: brightness(1.5); }
     50% { filter: brightness(0.8); }
     100% { filter: brightness(1.5); }
+}
+
+@keyframes attackAnimationPlayer {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(20px); } /* Move forward */
+    100% { transform: translateX(0); }
+}
+
+@keyframes attackAnimationEnemy {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(-20px); } /* Move forward from enemy perspective */
+    100% { transform: translateX(0); }
+}
+
+@keyframes hitAnimation {
+    0% { transform: translateX(0); background-color: rgba(255, 0, 0, 0.5); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); background-color: rgba(255, 0, 0, 0.8); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); background-color: transparent; }
+}
+
+.combatant.attack-animation {
+    animation-duration: 0.3s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+}
+
+#player-combatant.attack-animation {
+    animation-name: attackAnimationPlayer;
+}
+
+#enemy-combatant.attack-animation {
+    animation-name: attackAnimationEnemy;
+}
+
+.combatant.hit-animation {
+    animation-name: hitAnimation;
+    animation-duration: 0.3s;
+    animation-timing-function: ease-out;
 }
 
 #game-container.damage-taken {
