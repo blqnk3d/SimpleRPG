@@ -637,7 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let randomMonster;
 
         // Grace period for levels 1 & 2
-        if (player.level <= 2) {
+        if (player.level <= 4) {
             randomMonster = monsters.find(m => m.name === 'Schleim');
         } else {
             const discoverableMonsters = monsters.filter(m => m.level <= player.level + 1);
@@ -648,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const enemy = { ...randomMonster };
 
         // Weaken the slime during the grace period
-        if (player.level <= 2 && enemy.name === 'Schleim') {
+        if (player.level <= 4 && enemy.name === 'Schleim') {
             enemy.hp = Math.floor(enemy.hp * 0.75); // Reduce HP
             enemy.strength = Math.max(1, Math.floor(enemy.strength * 0.5)); // Reduce strength
             enemy.xp = Math.floor(enemy.xp * 0.75); // Reduce XP
