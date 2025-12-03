@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         respecButton: document.getElementById('respec-button'),
         exploreButton: document.getElementById('explore-button'),
         attackButton: document.getElementById('attack-button'),
+        infoButton: document.getElementById('info-button'),
         fleeButton: document.getElementById('flee-button'),
         statButtons: document.querySelectorAll('.stat-button'),
         enemyStatsContainer: document.getElementById('enemy-stats-container'),
@@ -226,11 +227,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function restartGame() {
-        player = { ...initialPlayerState }; // Reset player to initial state
+        player = { ...initialPlayerState, playerName: '' }; // Reset player to initial state
         currentEnemy = null; // Clear current enemy
         localStorage.removeItem('rpgGameState'); // Clear saved state
         elements.gameOverOverlay.style.display = 'none'; // Hide game over overlay
-        elements.gameContainer.style.display = 'grid'; // Show game container
         
         // Re-enable all game control buttons
         elements.exploreButton.disabled = false;
@@ -814,6 +814,17 @@ document.addEventListener('DOMContentLoaded', () => {
         randomEvent.action();
     }
 
+    function showMonsterInfo() {
+        if (!currentEnemy) return;
+        // If the container is currently hidden, show it and populate, else hide it.
+        if (elements.enemyStatsContainer.style.display === 'none' || elements.enemyStatsContainer.style.display === '') {
+            updateEnemyUI(); // Populate with current enemy stats
+            elements.enemyStatsContainer.style.display = 'block';
+        } else {
+            elements.enemyStatsContainer.style.display = 'none';
+        }
+    }
+
     // --- Combat Animation Functions ---
     function resetCombatants() {
         elements.playerCombatant.classList.remove('attack-animation', 'hit-animation');
@@ -1091,13 +1102,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         addLogMessage(`${currentEnemy.name} greift an und verursacht ${enemyDamage} Schaden. Du hast ${player.hp} LP übrig.`, 'red');
 
                         updateUI();
-                        elements.attackButton.disabled = false; // Re-enable for player's next turn
 
                         if (player.hp === 0) {
                             gameOver();
                         }
                     });
                 }
+                elements.attackButton.disabled = false; // Re-enable for player's next turn
                 return; // End the attack sequence
             }
 
@@ -1164,6 +1175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Listeners ---
     elements.exploreButton.addEventListener('click', explore);
     elements.attackButton.addEventListener('click', attack);
+    elements.infoButton.addEventListener('click', showMonsterInfo);
     elements.fleeButton.addEventListener('click', flee);
         elements.clearSaveButton = document.getElementById('clear-save-button');
         elements.clearSaveButton.addEventListener('click', clearGameData);
