@@ -12,6 +12,10 @@ Leader Board
 
 Pop up Nachrichten recht im eck bei änderungen oder Ähnlichem zusätlich zum log
 
+Skill Tree
+
+Classes
+
 Anzeige der Stats die gegeben werden von Items mit (+ X)
 Stats von items zählen für andere items zum anlegen
 Ablegen von items ( Angelegte sachen)

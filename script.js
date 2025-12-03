@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         attackButton: document.getElementById('attack-button'),
         infoButton: document.getElementById('info-button'),
         fleeButton: document.getElementById('flee-button'),
+        devGiveItemsButton: document.getElementById('dev-give-items-button'),
         statButtons: document.querySelectorAll('.stat-button'),
         enemyStatsContainer: document.getElementById('enemy-stats-container'),
         enemyName: document.getElementById('enemy-name'),
@@ -77,6 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let player;
     let currentEnemy = null;
     let activeContextItem = null; // To store the item key for the context menu
+    let isDev = false;
+
+    Object.defineProperty(window, 'isDev', {
+        set: function(value) {
+            isDev = value;
+            updateUI();
+        }
+    });
 
     const monsters = [
         // Level 1-3
@@ -817,7 +826,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function showMonsterInfo() {
         if (!currentEnemy) return;
         if (elements.enemyStatsContainer.style.display === 'none' || elements.enemyStatsContainer.style.display === '') {
-            updateEnemyUI(); // Populate with current enemy stats
             elements.enemyStatsContainer.style.display = 'block';
         } else {
             elements.enemyStatsContainer.style.display = 'none';
@@ -901,6 +909,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateUI() {
+        if (window.isDev) {
+            elements.devGiveItemsButton.style.display = 'inline-block';
+        } else {
+            elements.devGiveItemsButton.style.display = 'none';
+        }
+
         const playerStats = calculatePlayerStats();
 
         elements.level.textContent = player.level;
