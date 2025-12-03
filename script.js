@@ -225,10 +225,44 @@ document.addEventListener('DOMContentLoaded', () => {
         lastShopRotationTime: 0,
     };
 
+    function showNotification(message, type = 'info') {
+        const notificationContainer = document.getElementById('notification-container');
+        const notification = document.createElement('div');
+        notification.classList.add('notification', type);
+        notification.textContent = message;
+
+        notificationContainer.prepend(notification); // Add to top
+
+        // Force reflow to restart animation
+        void notification.offsetWidth; 
+
+        notification.style.opacity = 1;
+        notification.style.transform = 'translateX(0)';
+
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            notification.style.opacity = 0;
+            notification.style.transform = 'translateX(100%)';
+            notification.addEventListener('transitionend', () => {
+                notification.remove();
+            });
+        }, 5000);
+
+        // Dismiss on click
+        notification.addEventListener('click', () => {
+            notification.style.opacity = 0;
+            notification.style.transform = 'translateX(100%)';
+            notification.addEventListener('transitionend', () => {
+                notification.remove();
+            });
+        });
+    }
+
     // --- Game Logic ---
 
     function gameOver() {
         addLogMessage('Du wurdest besiegt! Das Spiel ist vorbei.', 'red');
+        showNotification('Game Over! Du wurdest besiegt.', 'error');
         elements.gameContainer.style.display = 'none';
         elements.gameOverOverlay.style.display = 'flex';
         localStorage.removeItem('rpgGameState'); // Clear game state on game over
@@ -349,6 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
             player.shopRotation = availableItems.slice(0, 7); // Show up to 7 items
             player.lastShopRotationTime = now;
             addLogMessage('Die Waren des Shops wurden erneuert!', 'cyan');
+            showNotification('Die Waren des Shops wurden erneuert!', 'info');
         }
     }
 
@@ -1001,6 +1036,7 @@ document.addEventListener('DOMContentLoaded', () => {
         player.statPoints += 3; // Grant 3 stat points per level
         player.hp = player.maxHp; // Heal on level up
         addLogMessage(`Level Up! Du bist jetzt Level ${player.level}. Du hast 3 Stat-Punkte erhalten!`, 'yellow');
+        showNotification(`Level Up! Du bist jetzt Level ${player.level}!`, 'success');
         updateUI();
     }
 
@@ -1022,6 +1058,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentEnemy = createEnemy();
         document.body.classList.add('combat-active');
         addLogMessage(`Du triffst auf einen ${currentEnemy.name}!`, 'orange');
+        showNotification(`Ein ${currentEnemy.name} erscheint!`, 'info');
         elements.exploreButton.style.display = 'none';
         elements.attackButton.style.display = 'inline-block';
         elements.infoButton.style.display = 'inline-block';
@@ -1096,6 +1133,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (Math.random() < lootItem.chance) {
                                 player.inventory.push(lootItem.item);
                                 addLogMessage(`Der ${currentEnemy.name} hat ${items[lootItem.item].name} fallen gelassen!`, 'gold');
+                                showNotification(`Du hast ${items[lootItem.item].name} erhalten!`, 'success');
                             }
                         });
                     }
@@ -1251,6 +1289,7 @@ document.addEventListener('DOMContentLoaded', () => {
             () => { // onConfirm
                 localStorage.removeItem('rpgGameState');
                 addLogMessage('Speicherdaten gelöscht. Das Spiel wird neu gestartet.', 'red');
+                showNotification('Alle Speicherdaten wurden gelöscht. Das Spiel wird neu gestartet.', 'warning');
                 setTimeout(() => {
                     location.reload();
                 }, 1000);

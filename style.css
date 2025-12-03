@@ -829,3 +829,76 @@ body:not(.login-active) #login-overlay {
 #start-game-button {
     width: 50%;
 }
+
+/* Notification Container */
+#notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 3000; /* Higher than other overlays */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none; /* Allow clicks to pass through container */
+}
+
+/* Individual Notification */
+.notification {
+    background-color: rgba(42, 42, 42, 0.95);
+    color: #f0f0f0;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transform: translateX(100%);
+    animation: slideIn 0.5s forwards, fadeOut 0.5s 2.5s forwards; /* Slide in, stay, then fade out */
+    min-width: 250px;
+    max-width: 350px;
+    pointer-events: auto; /* Re-enable clicks for the notification itself */
+    cursor: pointer;
+    border: 1px solid #00ff99;
+}
+
+.notification.success {
+    border-color: #00ff99;
+}
+
+.notification.info {
+    border-color: #007bff;
+}
+
+.notification.warning {
+    border-color: #ffc107;
+    color: #333; /* Darker text for better contrast */
+}
+
+.notification.error {
+    border-color: #dc3545;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* Responsive adjustments for notifications */
+@media (max-width: 600px) {
+    #notification-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+    }
+
+    .notification {
+        min-width: unset;
+        max-width: unset;
+        width: 100%;
+    }
+}
