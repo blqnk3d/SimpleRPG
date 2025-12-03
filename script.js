@@ -959,7 +959,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             elements.exploreButton.style.display = 'inline-block';
             elements.attackButton.style.display = 'none';
-            elements.infoButton.style.display = 'none';
+            elements.infoButton.style.display = 'none'; // Hide info button when no enemy
             elements.fleeButton.style.display = 'none';
 
             // Show fast heal button if player has potions and is not at full HP
@@ -1093,6 +1093,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     elements.infoButton.style.display = 'none';
                     elements.fleeButton.style.display = 'none';
                     updateEnemyUI();
+                    elements.enemyStatsContainer.style.display = 'none';
                 } else {
                     // Player's turn is over, now it's the enemy's turn
                     animateEnemyAttack(() => {
