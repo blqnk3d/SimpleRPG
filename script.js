@@ -1064,67 +1064,83 @@ document.addEventListener('DOMContentLoaded', () => {
     function attack() {
         if (!currentEnemy) return;
 
-        elements.attackButton.disabled = true; // Disable attack button during animation
+        elements.attackButton.disabled = true;
 
-        animatePlayerAttack(() => {
-            const playerStats = calculatePlayerStats();
+        const playerStats = calculatePlayerStats();
+        const enemySpeed = currentEnemy.attackSpeed || 1; // Default enemy speed
+        const playerSpeed = playerStats.attackSpeed;
 
-            // Player attacks enemy
-            const playerDamage = Math.max(1, playerStats.strength - currentEnemy.defense + Math.floor(Math.random() * 3));
-            currentEnemy.hp = Math.max(0, currentEnemy.hp - playerDamage);
-            addLogMessage(`Du greifst an und verursachst ${playerDamage} Schaden. ${currentEnemy.name} hat ${currentEnemy.hp} LP übrig.`, '#00ff99');
-            updateEnemyUI();
+        const guaranteedAttacks = Math.floor(playerSpeed / enemySpeed);
+        const chanceForExtraAttack = (playerSpeed % enemySpeed) / enemySpeed;
+        const totalAttacks = guaranteedAttacks + (Math.random() < chanceForExtraAttack ? 1 : 0);
 
-            if (currentEnemy.hp === 0) {
-                addLogMessage(`Du hast den ${currentEnemy.name} besiegt!`, 'green');
-                gainXP(currentEnemy.xp);
+        let attackCounter = 0;
+        function executeNextAttack() {
+            // Check if all attacks are done or if the enemy is already defeated
+            if (attackCounter >= totalAttacks || currentEnemy.hp === 0) {
+                // If enemy was defeated by the last hit
+                if (currentEnemy.hp === 0) {
+                    addLogMessage(`Du hast den ${currentEnemy.name} besiegt!`, 'green');
+                    gainXP(currentEnemy.xp);
 
-                // Coin drop
-                const coinsDropped = Math.floor(Math.random() * 3); // 0, 1, or 2 coins
-                if (coinsDropped > 0) {
-                    player.coins += coinsDropped;
-                    addLogMessage(`Der ${currentEnemy.name} hat ${coinsDropped} Gold fallen gelassen!`, 'gold');
-                }
+                    // Coin drop
+                    const coinsDropped = Math.floor(Math.random() * 3); // 0, 1, or 2 coins
+                    if (coinsDropped > 0) {
+                        player.coins += coinsDropped;
+                        addLogMessage(`Der ${currentEnemy.name} hat ${coinsDropped} Gold fallen gelassen!`, 'gold');
+                    }
 
-                // Loot drop
-                if (currentEnemy.loot) {
-                    currentEnemy.loot.forEach(lootItem => {
-                        if (Math.random() < lootItem.chance) {
-                            player.inventory.push(lootItem.item);
-                            addLogMessage(`Der ${currentEnemy.name} hat ${items[lootItem.item].name} fallen gelassen!`, 'gold');
+                    // Loot drop
+                    if (currentEnemy.loot) {
+                        currentEnemy.loot.forEach(lootItem => {
+                            if (Math.random() < lootItem.chance) {
+                                player.inventory.push(lootItem.item);
+                                addLogMessage(`Der ${currentEnemy.name} hat ${items[lootItem.item].name} fallen gelassen!`, 'gold');
+                            }
+                        });
+                    }
+
+                    currentEnemy = null;
+                    elements.exploreButton.style.display = 'inline-block';
+                    elements.attackButton.style.display = 'none';
+                    elements.infoButton.style.display = 'none';
+                    elements.fleeButton.style.display = 'none';
+                    updateEnemyUI();
+                    resetCombatants(); // Re-enable for next fight
+                } else {
+                    // Player's turn is over, now it's the enemy's turn
+                    animateEnemyAttack(() => {
+                        const enemyDamage = Math.max(1, currentEnemy.strength - playerStats.defense + Math.floor(Math.random() * 2));
+                        player.hp = Math.max(0, player.hp - enemyDamage);
+                        damageFlash(elements.gameContainer);
+                        addLogMessage(`${currentEnemy.name} greift an und verursacht ${enemyDamage} Schaden. Du hast ${player.hp} LP übrig.`, 'red');
+
+                        updateUI();
+                        elements.attackButton.disabled = false; // Re-enable for player's next turn
+
+                        if (player.hp === 0) {
+                            gameOver();
                         }
                     });
                 }
-
-                currentEnemy = null;
-                elements.exploreButton.style.display = 'inline-block';
-                elements.attackButton.style.display = 'none';
-                elements.infoButton.style.display = 'none';
-                elements.fleeButton.style.display = 'none';
-                updateEnemyUI();
-                resetCombatants(); // Clear combat visuals on enemy defeat
-                elements.combatantsDisplay.style.display = 'none';
-                elements.playerCombatant.style.display = 'none';
-                elements.enemyCombatant.style.display = 'none';
-                elements.attackButton.disabled = false; // Re-enable if combat ends
-                return;
+                return; // End the attack sequence
             }
 
-            // If enemy is not defeated, enemy attacks player
-            animateEnemyAttack(() => {
-                const enemyDamage = Math.max(1, currentEnemy.strength - playerStats.defense + Math.floor(Math.random() * 2));
-                player.hp = Math.max(0, player.hp - enemyDamage);
-                damageFlash(elements.gameContainer); // Flash on damage
-                addLogMessage(`${currentEnemy.name} greift an und verursacht ${enemyDamage} Schaden. Du hast ${player.hp} LP übrig.`, 'red');
-
-                updateUI();
-                elements.attackButton.disabled = false; // Re-enable after enemy attack
-
-                if (player.hp === 0) {
-                    gameOver();
-                }
+            // Execute a single attack
+            attackCounter++;
+            animatePlayerAttack(() => {
+                const playerDamage = Math.max(1, playerStats.strength - currentEnemy.defense + Math.floor(Math.random() * 3));
+                currentEnemy.hp = Math.max(0, currentEnemy.hp - playerDamage);
+                addLogMessage(`Schlag ${attackCounter}: Du verursachst ${playerDamage} Schaden. ${currentEnemy.name} hat ${currentEnemy.hp} LP übrig.`, '#00ff99');
+                updateEnemyUI();
+                
+                // Trigger the next attack in the sequence
+                executeNextAttack();
             });
-        });
+        }
+
+        // Start the attack sequence
+        executeNextAttack();
     }
     
     function useStatPoint(stat) {
