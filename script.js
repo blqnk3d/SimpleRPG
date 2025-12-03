@@ -816,7 +816,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showMonsterInfo() {
         if (!currentEnemy) return;
-        // If the container is currently hidden, show it and populate, else hide it.
         if (elements.enemyStatsContainer.style.display === 'none' || elements.enemyStatsContainer.style.display === '') {
             updateEnemyUI(); // Populate with current enemy stats
             elements.enemyStatsContainer.style.display = 'block';
@@ -1015,6 +1014,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.infoButton.style.display = 'inline-block';
         elements.fleeButton.style.display = 'inline-block';
         updateEnemyUI();
+        elements.enemyStatsContainer.style.display = 'block';
     }
 
     function flee() {
@@ -1030,6 +1030,7 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.infoButton.style.display = 'none';
             elements.fleeButton.style.display = 'none';
             updateEnemyUI();
+            elements.enemyStatsContainer.style.display = 'none'; // Hide info when fleeing
         } else {
             addLogMessage('Du konntest nicht fliehen!', 'red');
             // Enemy gets a free attack if flee fails
