@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
         attackButton: document.getElementById('attack-button'),
         infoButton: document.getElementById('info-button'),
         fleeButton: document.getElementById('flee-button'),
-        devGiveItemsButton: document.getElementById('dev-give-items-button'),
         statButtons: document.querySelectorAll('.stat-button'),
         enemyStatsContainer: document.getElementById('enemy-stats-container'),
         enemyName: document.getElementById('enemy-name'),
@@ -909,10 +908,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateUI() {
-        if (window.isDev) {
-            elements.devGiveItemsButton.style.display = 'inline-block';
+        if (isDev) {
+            document.getElementById('dev-give-items-button').style.display = 'inline-block';
         } else {
-            elements.devGiveItemsButton.style.display = 'none';
+            document.getElementById('dev-give-items-button').style.display = 'none';
         }
 
         const playerStats = calculatePlayerStats();
