@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
         respecButton: document.getElementById('respec-button'),
         exploreButton: document.getElementById('explore-button'),
         attackButton: document.getElementById('attack-button'),
-        infoButton: document.getElementById('info-button'),
         fleeButton: document.getElementById('flee-button'),
         statButtons: document.querySelectorAll('.stat-button'),
         enemyStatsContainer: document.getElementById('enemy-stats-container'),
@@ -815,17 +814,6 @@ document.addEventListener('DOMContentLoaded', () => {
         randomEvent.action();
     }
 
-    function showMonsterInfo() {
-        if (!currentEnemy) return;
-        // If the container is currently hidden, show it and populate, else hide it.
-        if (elements.enemyStatsContainer.style.display === 'none' || elements.enemyStatsContainer.style.display === '') {
-            updateEnemyUI(); // Populate with current enemy stats
-            elements.enemyStatsContainer.style.display = 'block';
-        } else {
-            elements.enemyStatsContainer.style.display = 'none';
-        }
-    }
-
     // --- Combat Animation Functions ---
     function resetCombatants() {
         elements.playerCombatant.classList.remove('attack-animation', 'hit-animation');
@@ -890,7 +878,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateEnemyUI() {
         if (currentEnemy) {
-            elements.enemyStatsContainer.style.display = 'block';
             elements.enemyName.textContent = currentEnemy.name;
             elements.enemyHp.textContent = currentEnemy.hp;
             elements.enemyMaxHp.textContent = currentEnemy.maxHp;
@@ -900,8 +887,6 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.enemyXpRewardDisplay.textContent = currentEnemy.xp;
             const enemyHpPercentage = (currentEnemy.hp / currentEnemy.maxHp) * 100;
             elements.enemyHpBar.style.width = `${enemyHpPercentage}%`;
-        } else {
-            elements.enemyStatsContainer.style.display = 'none';
         }
     }
 
@@ -1012,20 +997,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         currentEnemy = createEnemy();
+        document.body.classList.add('combat-active');
         addLogMessage(`Du triffst auf einen ${currentEnemy.name}!`, 'orange');
         elements.exploreButton.style.display = 'none';
         elements.attackButton.style.display = 'inline-block';
         elements.infoButton.style.display = 'inline-block';
         elements.fleeButton.style.display = 'inline-block';
         updateEnemyUI();
-        
-        // --- Combat Visuals Initialization ---
-        resetCombatants(); // Ensure a clean slate for combat visuals
-        elements.combatantsDisplay.style.display = 'flex'; // Make the container visible
-        elements.playerCombatant.textContent = 'YOU'; // Placeholder text
-        elements.enemyCombatant.textContent = currentEnemy.name; // Placeholder text
-        elements.playerCombatant.style.display = 'block';
-        elements.enemyCombatant.style.display = 'block';
     }
 
     function flee() {
@@ -1035,15 +1013,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (Math.random() < fleeChance) {
             addLogMessage('Du bist erfolgreich geflohen!', 'green');
             currentEnemy = null;
+            document.body.classList.remove('combat-active');
             elements.exploreButton.style.display = 'inline-block';
             elements.attackButton.style.display = 'none';
             elements.infoButton.style.display = 'none';
             elements.fleeButton.style.display = 'none';
             updateEnemyUI();
-            resetCombatants(); // Clear combat visuals on successful flee
-            elements.combatantsDisplay.style.display = 'none';
-            elements.playerCombatant.style.display = 'none';
-            elements.enemyCombatant.style.display = 'none';
         } else {
             addLogMessage('Du konntest nicht fliehen!', 'red');
             // Enemy gets a free attack if flee fails
@@ -1101,12 +1076,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     currentEnemy = null;
+                    document.body.classList.remove('combat-active');
                     elements.exploreButton.style.display = 'inline-block';
                     elements.attackButton.style.display = 'none';
                     elements.infoButton.style.display = 'none';
                     elements.fleeButton.style.display = 'none';
                     updateEnemyUI();
-                    resetCombatants(); // Re-enable for next fight
                 } else {
                     // Player's turn is over, now it's the enemy's turn
                     animateEnemyAttack(() => {
@@ -1189,8 +1164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Listeners ---
     elements.exploreButton.addEventListener('click', explore);
     elements.attackButton.addEventListener('click', attack);
-    elements.infoButton.addEventListener('click', showMonsterInfo);
-            elements.fleeButton.addEventListener('click', flee);
+    elements.fleeButton.addEventListener('click', flee);
         elements.clearSaveButton = document.getElementById('clear-save-button');
         elements.clearSaveButton.addEventListener('click', clearGameData);
     elements.devGiveItemsButton = document.getElementById('dev-give-items-button');
@@ -1320,20 +1294,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function init() {
         loadGame();
         if (!player.playerName) {
-            elements.loginOverlay.style.display = 'flex';
-            elements.gameContainer.style.display = 'none';
+            document.body.classList.add('login-active');
         } else {
-            elements.loginOverlay.style.display = 'none';
-            elements.gameContainer.style.display = 'grid';
-            
-            if (!currentEnemy) { // If no enemy is present, hide combat visuals
-                elements.playerCombatant.style.display = 'none';
-                elements.enemyCombatant.style.display = 'none';
-                elements.combatantsDisplay.style.display = 'none';
-            } else { // If an enemy is present (e.g., loaded from save)
-                elements.playerCombatant.style.display = 'block';
-                elements.enemyCombatant.style.display = 'block';
-                elements.combatantsDisplay.style.display = 'flex'; // Restore flex display
+            document.body.classList.remove('login-active');
+            if (currentEnemy) { // If an enemy is present (e.g., loaded from save)
                 elements.playerCombatant.textContent = 'YOU'; // Restore text
                 elements.enemyCombatant.textContent = currentEnemy.name; // Restore text
             }
@@ -1346,8 +1310,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = elements.playerNameInput.value.trim();
         if (name) {
             player.playerName = name;
-            elements.loginOverlay.style.display = 'none';
-            elements.gameContainer.style.display = 'grid';
+            document.body.classList.remove('login-active');
             updateUI();
             saveGame();
         } else {
@@ -1355,6 +1318,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    init();
     elements.startGameButton.addEventListener('click', startGame);
+    init();
 });
