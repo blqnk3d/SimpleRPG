@@ -854,8 +854,6 @@ body:not(.login-active) #login-overlay {
     animation: slideIn 0.5s forwards, fadeOut 0.5s 2.5s forwards; /* Slide in, stay, then fade out */
     min-width: 250px;
     max-width: 350px;
-    pointer-events: auto; /* Re-enable clicks for the notification itself */
-    cursor: pointer;
     border: 1px solid #00ff99;
 }
 

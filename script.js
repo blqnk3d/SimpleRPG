@@ -247,15 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 notification.remove();
             });
         }, 5000);
-
-        // Dismiss on click
-        notification.addEventListener('click', () => {
-            notification.style.opacity = 0;
-            notification.style.transform = 'translateX(100%)';
-            notification.addEventListener('transitionend', () => {
-                notification.remove();
-            });
-        });
     }
 
     // --- Game Logic ---
@@ -1377,6 +1368,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (name) {
             player.playerName = name;
             document.body.classList.remove('login-active');
+            elements.gameContainer.style.display = 'grid'; // Explicitly show game container
             updateUI();
             saveGame();
         } else {
