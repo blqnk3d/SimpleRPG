@@ -393,13 +393,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (item.heals) itemDetails += `<br>Heilt: ${item.heals} LP`;
 
                 if (item.requirements) {
-                    let reqText = '';
+                    let requirementsDetails = '';
+                    const playerStats = calculatePlayerStats();
+
                     for (const req in item.requirements) {
-                        const statName = { strength: 'Stärke', defense: 'Verteidigung' }[req] || req;
-                        reqText += `${statName} ${item.requirements[req]}, `;
+                        const requiredValue = item.requirements[req];
+                        let playerValue;
+
+                        if (req === 'level') {
+                            playerValue = player.level;
+                        } else {
+                            playerValue = playerStats[req] || 0;
+                        }
+
+                        const meetsReq = playerValue >= requiredValue;
+                        const color = meetsReq ? '#2ecc71' : '#ff6b6b';
+                        const statShort = { strength: 'Str', defense: 'Def', level: 'Lvl', attackSpeed: 'ASpd' }[req] || req;
+
+                        requirementsDetails += `<span style="color: ${color};">min: ${requiredValue} ${statShort}</span> `;
                     }
-                    if (reqText) {
-                        itemDetails += `<br><span style="color: #ff6b6b;">Benötigt: ${reqText.slice(0, -2)}</span>`;
+                    if (requirementsDetails) {
+                        itemDetails += `<br>${requirementsDetails.trim()}`;
                     }
                 }
 
