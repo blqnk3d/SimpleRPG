@@ -387,9 +387,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemDiv.classList.add('inventory-item');
                 
                 let itemDetails = `<strong>${item.name}</strong>`;
-                if (item.strength) itemDetails += `<br>Stärke: +${item.strength}`;
-                if (item.defense) itemDetails += `<br>Verteidigung: +${item.defense}`;
-                if (item.attackSpeed) itemDetails += `<br>Angriffsgeschw.: +${item.attackSpeed}`;
+                if (item.strength) itemDetails += `<br>STR: +${item.strength}`;
+                if (item.defense) itemDetails += `<br>DEF: +${item.defense}`;
+                if (item.attackSpeed) itemDetails += `<br>AGI: +${item.attackSpeed}`;
                 if (item.heals) itemDetails += `<br>Heilt: ${item.heals} LP`;
 
                 if (item.requirements) {
@@ -408,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         const meetsReq = playerValue >= requiredValue;
                         const color = meetsReq ? '#2ecc71' : '#ff6b6b';
-                        const statShort = { strength: 'Str', defense: 'Def', level: 'Lvl', attackSpeed: 'ASpd' }[req] || req;
+                        const statShort = { strength: 'STR', defense: 'DEF', level: 'Lvl', attackSpeed: 'AGI' }[req] || req;
 
                         requirementsDetails += `<span style="color: ${color};">min: ${requiredValue} ${statShort}</span> `;
                     }
@@ -570,20 +570,21 @@ document.addEventListener('DOMContentLoaded', () => {
             let canEquip = true;
             let missingReqs = '';
             for (const req in item.requirements) {
-                // Handle level requirement explicitly as it's not a direct player stat
+                let currentStat = 0;
                 if (req === 'level') {
-                    if (player.level < item.requirements.level) {
-                        canEquip = false;
-                        missingReqs += `Level ${item.requirements.level}, `;
-                    }
-                } else if (player[req] < item.requirements[req]) {
+                    currentStat = player.level;
+                } else if (player[req]) {
+                    currentStat = player[req];
+                }
+
+                if (currentStat < item.requirements[req]) {
                     canEquip = false;
-                    const statName = { strength: 'Stärke', defense: 'Verteidigung', attackSpeed: 'Angriffsgeschw.', maxHp: 'Max LP' }[req] || req;
-                    missingReqs += `${statName} ${item.requirements[req]}, `;
+                    const statName = { strength: 'STR', defense: 'DEF', attackSpeed: 'AGI', maxHp: 'Max LP', level: 'Lvl' }[req] || req;
+                    missingReqs += `${item.requirements[req]} ${statName}, `;
                 }
             }
             if (!canEquip) {
-                addLogMessage(`Voraussetzungen für ${item.name} nicht erfüllt. Benötigt: ${missingReqs.slice(0, -2)}.`, 'red');
+                addLogMessage(`Voraussetzungen für ${item.name} nicht erfüllt. min: ${missingReqs.slice(0, -2)}.`, 'red');
                 return;
             }
         }
@@ -847,10 +848,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             },
             {
-                description: 'Du fällst in ein Loch und verstauchst dir den Knöchel. Du verlierst 1 Stärke für den nächsten Kampf.',
+                description: 'Du fällst in ein Loch und verstauchst dir den Knöchel. Du verlierst 1 STR für den nächsten Kampf.',
                 type: 'negative',
                 action: () => {
-                    addLogMessage('Du fällst in ein Loch und verstauchst dir den Knöchel. Du verlierst 1 Stärke für den nächsten Kampf.', 'red');
+                    addLogMessage('Du fällst in ein Loch und verstauchst dir den Knöchel. Du verlierst 1 STR für den nächsten Kampf.', 'red');
                     // This is a temporary effect, so we don't save it to the player object
                     // Instead, we could modify the next enemy to be weaker, or add a temporary debuff to the player
                     // For simplicity, we will just log the message for now
