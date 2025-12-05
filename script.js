@@ -128,50 +128,59 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'Hydra', level: 16, hp: 120, strength: 22, defense: 16, xp: 150, loot: [{ item: 'elixir-strength', chance: 0.1 }] },
     ];
 
+    const rarityColors = {
+        common: '#808080',
+        uncommon: '#90ee90',
+        rare: '#00bfff',
+        epic: '#9400d3',
+        legendary: '#ffd700',
+        mythic: '#ff1493' 
+    };
+
     const items = {
         // Existing Weapons
-        'rusty-sword': { name: 'Rostiges Schwert', type: 'weapon', strength: 2, defense: 0, sellPrice: 5 },
-        'iron-sword': { name: 'Eisenschwert', type: 'weapon', strength: 5, defense: 0, sellPrice: 20, requirements: { strength: 5 } },
-        'silver-sword': { name: 'Silberschwert', type: 'weapon', strength: 7, defense: 0, sellPrice: 35, requirements: { strength: 8 } },
-        'steel-sword': { name: 'Stahlschwert', type: 'weapon', strength: 10, attackSpeed: 1, sellPrice: 40, requirements: { strength: 12 } },
+        'rusty-sword': { name: 'Rostiges Schwert', type: 'weapon', strength: 2, defense: 0, sellPrice: 5, rarity: 'common' },
+        'iron-sword': { name: 'Eisenschwert', type: 'weapon', strength: 5, defense: 0, sellPrice: 20, requirements: { strength: 5 }, rarity: 'common' },
+        'silver-sword': { name: 'Silberschwert', type: 'weapon', strength: 7, defense: 0, sellPrice: 35, requirements: { strength: 8 }, rarity: 'uncommon' },
+        'steel-sword': { name: 'Stahlschwert', type: 'weapon', strength: 10, attackSpeed: 1, sellPrice: 40, requirements: { strength: 12 }, rarity: 'uncommon' },
         // New Weapons
-        'dagger-swiftness': { name: 'Dolch der Schnelligkeit', type: 'weapon', strength: 2, attackSpeed: 2, sellPrice: 30 },
-        'morningstar': { name: 'Morgenstern', type: 'weapon', strength: 8, defense: 0, sellPrice: 60, requirements: { strength: 10 } },
-        'staff-fire': { name: 'Feuerstab', type: 'weapon', strength: 12, defense: 0, sellPrice: 150, requirements: { strength: 15 } },
-        'great-axe': { name: 'Großaxt', type: 'weapon', strength: 15, defense: 0, sellPrice: 250, requirements: { strength: 18 } },
+        'dagger-swiftness': { name: 'Dolch der Schnelligkeit', type: 'weapon', strength: 2, attackSpeed: 2, sellPrice: 30, rarity: 'uncommon' },
+        'morningstar': { name: 'Morgenstern', type: 'weapon', strength: 8, defense: 0, sellPrice: 60, requirements: { strength: 10 }, rarity: 'rare' },
+        'staff-fire': { name: 'Feuerstab', type: 'weapon', strength: 12, defense: 0, sellPrice: 150, requirements: { strength: 15 }, rarity: 'epic' },
+        'great-axe': { name: 'Großaxt', type: 'weapon', strength: 15, defense: 0, sellPrice: 250, requirements: { strength: 18 }, rarity: 'epic' },
 
         // Existing Armor
-        'leather-armor': { name: 'Lederrüstung', type: 'armor', strength: 0, defense: 3, sellPrice: 10 },
-        'iron-armor': { name: 'Eisenrüstung', type: 'armor', strength: 0, defense: 6, sellPrice: 30, requirements: { defense: 5 } },
-        'chainmail-armor': { name: 'Kettenrüstung', type: 'armor', strength: 0, defense: 8, sellPrice: 50, requirements: { defense: 8 } },
-        'steel-armor': { name: 'Stahlrüstung', type: 'armor', strength: 0, defense: 10, sellPrice: 60, requirements: { defense: 12 } },
+        'leather-armor': { name: 'Lederrüstung', type: 'armor', strength: 0, defense: 3, sellPrice: 10, rarity: 'common' },
+        'iron-armor': { name: 'Eisenrüstung', type: 'armor', strength: 0, defense: 6, sellPrice: 30, requirements: { defense: 5 }, rarity: 'common' },
+        'chainmail-armor': { name: 'Kettenrüstung', type: 'armor', strength: 0, defense: 8, sellPrice: 50, requirements: { defense: 8 }, rarity: 'uncommon' },
+        'steel-armor': { name: 'Stahlrüstung', type: 'armor', strength: 0, defense: 10, sellPrice: 60, requirements: { defense: 12 }, rarity: 'uncommon' },
         // New Armor
-        'studded-leather': { name: 'Beschlagene Lederrüstung', type: 'armor', strength: 0, defense: 5, sellPrice: 40, requirements: { defense: 3 } },
-        'splint-mail': { name: 'Schienenpanzer', type: 'armor', strength: 0, defense: 9, sellPrice: 120, requirements: { defense: 10 } },
-        'full-plate': { name: 'Vollplattenrüstung', type: 'armor', strength: 0, defense: 15, sellPrice: 300, requirements: { defense: 18 } },
+        'studded-leather': { name: 'Beschlagene Lederrüstung', type: 'armor', strength: 0, defense: 5, sellPrice: 40, requirements: { defense: 3 }, rarity: 'uncommon' },
+        'splint-mail': { name: 'Schienenpanzer', type: 'armor', strength: 0, defense: 9, sellPrice: 120, requirements: { defense: 10 }, rarity: 'rare' },
+        'full-plate': { name: 'Vollplattenrüstung', type: 'armor', strength: 0, defense: 15, sellPrice: 300, requirements: { defense: 18 }, rarity: 'epic' },
 
         // Existing Consumables
-        'healing-potion': { name: 'Heiltrank', type: 'consumable', heals: 20, sellPrice: 4 },
-        'strong-healing-potion': { name: 'Starker Heiltrank', type: 'consumable', heals: 50, sellPrice: 15 },
-        'antidote': { name: 'Gegengift', type: 'consumable', heals: 5, sellPrice: 10 },
+        'healing-potion': { name: 'Heiltrank', type: 'consumable', heals: 20, sellPrice: 4, rarity: 'common' },
+        'strong-healing-potion': { name: 'Starker Heiltrank', type: 'consumable', heals: 50, sellPrice: 15, rarity: 'uncommon' },
+        'antidote': { name: 'Gegengift', type: 'consumable', heals: 5, sellPrice: 10, rarity: 'common' },
         // New Consumables
-        'scroll-escape': { name: 'Schriftrolle der Flucht', type: 'consumable', effect: 'escape', sellPrice: 75 },
-        'elixir-strength': { name: 'Stärkeelixier', type: 'consumable', effect: 'boost_str', sellPrice: 100 },
+        'scroll-escape': { name: 'Schriftrolle der Flucht', type: 'consumable', effect: 'escape', sellPrice: 75, rarity: 'rare' },
+        'elixir-strength': { name: 'Stärkeelixier', type: 'consumable', effect: 'boost_str', sellPrice: 100, rarity: 'epic' },
 
         // Misc & Junk
-        'gold-coin': { name: 'Goldmünze', type: 'currency', sellPrice: 1 },
-        'goblin-ear': { name: 'Goblin-Ohr', type: 'junk', sellPrice: 2 },
-        'wolf-pelt': { name: 'Wolfspelz', type: 'junk', sellPrice: 8 },
-        'ogre-tooth': { name: 'Ogerzahn', type: 'junk', sellPrice: 15 },
+        'gold-coin': { name: 'Goldmünze', type: 'currency', sellPrice: 1, rarity: 'common' },
+        'goblin-ear': { name: 'Goblin-Ohr', type: 'junk', sellPrice: 2, rarity: 'common' },
+        'wolf-pelt': { name: 'Wolfspelz', type: 'junk', sellPrice: 8, rarity: 'common' },
+        'ogre-tooth': { name: 'Ogerzahn', type: 'junk', sellPrice: 15, rarity: 'common' },
     };
 
     const accessoriesToAdd = {
         // Accessories
-        'ring-strength': { name: 'Ring der Stärke', type: 'accessory', slot: 'ring', strength: 2, sellPrice: 50, requirements: { level: 2 } },
-        'ring-defense': { name: 'Ring der Verteidigung', type: 'accessory', slot: 'ring', defense: 2, sellPrice: 50, requirements: { level: 2 } },
-        'necklace-health': { name: 'Amulett der Vitalität', type: 'accessory', slot: 'necklace', maxHp: 10, sellPrice: 75, requirements: { level: 3 } },
-        'ring-swiftness': { name: 'Ring der Schnelligkeit', type: 'accessory', slot: 'ring', attackSpeed: 1, sellPrice: 60, requirements: { attackSpeed: 2, level: 5 } }, // Example with multiple requirements
-        'necklace-protection': { name: 'Halskette des Schutzes', type: 'accessory', slot: 'necklace', defense: 3, sellPrice: 90, requirements: { defense: 5, level: 7 } },
+        'ring-strength': { name: 'Ring der Stärke', type: 'accessory', slot: 'ring', strength: 2, sellPrice: 50, requirements: { level: 2 }, rarity: 'uncommon' },
+        'ring-defense': { name: 'Ring der Verteidigung', type: 'accessory', slot: 'ring', defense: 2, sellPrice: 50, requirements: { level: 2 }, rarity: 'uncommon' },
+        'necklace-health': { name: 'Amulett der Vitalität', type: 'accessory', slot: 'necklace', maxHp: 10, sellPrice: 75, requirements: { level: 3 }, rarity: 'uncommon' },
+        'ring-swiftness': { name: 'Ring der Schnelligkeit', type: 'accessory', slot: 'ring', attackSpeed: 1, sellPrice: 60, requirements: { attackSpeed: 2, level: 5 }, rarity: 'rare' }, // Example with multiple requirements
+        'necklace-protection': { name: 'Halskette des Schutzes', type: 'accessory', slot: 'necklace', defense: 3, sellPrice: 90, requirements: { defense: 5, level: 7 }, rarity: 'rare' },
     };
 
     // Merge new accessories into the existing items object
@@ -391,7 +400,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const itemDiv = document.createElement('div');
                 itemDiv.classList.add('inventory-item');
                 
-                let itemDetails = `<strong>${item.name}</strong>`;
+                const rarityColor = item.rarity && rarityColors[item.rarity] ? rarityColors[item.rarity] : '#f0f0f0';
+                let itemDetails = `<strong style="color: ${rarityColor};">${item.name}</strong>`;
                 if (item.strength) itemDetails += `<br>STR: +${item.strength}`;
                 if (item.defense) itemDetails += `<br>DEF: +${item.defense}`;
                 if (item.attackSpeed) itemDetails += `<br>AGI: +${item.attackSpeed}`;
@@ -497,8 +507,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemDiv.classList.add('unavailable-item');
             }
 
+            const rarityColor = item.rarity && rarityColors[item.rarity] ? rarityColors[item.rarity] : '#f0f0f0';
             itemDiv.innerHTML = `
-                <strong>${item.name}</strong><br>
+                <strong style="color: ${rarityColor};">${item.name}</strong><br>
                 Preis: ${shopItem.price} Gold<br>
                 Verkaufspreis: ${item.sellPrice} Gold<br>
                 Level: ${shopItem.levelRequired}<br>
