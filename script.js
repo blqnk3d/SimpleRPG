@@ -82,6 +82,11 @@ document.addEventListener('DOMContentLoaded', () => {
     Object.defineProperty(window, 'isDev', {
         set: function(value) {
             isDev = value;
+            if (value) {
+                addLogMessage('Dev-Modus aktiviert. Unendliche Werte werden bei UI-Updates angewendet.', 'purple');
+            } else {
+                addLogMessage('Dev-Modus deaktiviert.', 'purple');
+            }
             updateUI();
         }
     });
@@ -951,6 +956,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateUI() {
         if (isDev) {
             document.getElementById('dev-give-items-button').style.display = 'inline-block';
+            player.level = 99;
+            player.statPoints = 999;
+            player.coins = 999999;
         } else {
             document.getElementById('dev-give-items-button').style.display = 'none';
         }
