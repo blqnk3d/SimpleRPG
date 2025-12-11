@@ -208,39 +208,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!discoveredCells.has(cellKey)) {
                 cell.classList.add('undiscovered');
+                cell.textContent = ''; // No text on undiscovered cells
                 return;
             }
 
+            let cellContent = ''; // Character to display in the cell
+            
+            // Determine base tile type
             if (map[index] === TILE.WALL) {
                 cell.classList.add('wall');
+                cellContent = 'W';
             } else {
                 cell.classList.add('floor');
+                cellContent = 'F';
             }
+            
+            // Check entities, overriding base tile content if present and visible
+            const item = items.find(i => i.x === x && i.y === y);
+            const enemy = enemies.find(e => e.x === x && e.y === y);
+
+            if (item && visibleCells.has(cellKey)) {
+                cell.classList.add('item');
+                cell.style.backgroundColor = item.color;
+                cellContent = 'I';
+            }
+            if (enemy && visibleCells.has(cellKey)) {
+                cell.classList.add('enemy');
+                cell.style.backgroundColor = 'red';
+                cellContent = 'E';
+            }
+            // Player always overrides other entities for its cell
+            if (playerPosition.x === x && playerPosition.y === y) {
+                cellContent = 'P';
+            }
+
+            // Set the text content for the cell
+            cell.textContent = cellContent;
             
             if (visibleCells.has(cellKey)) {
                 cell.classList.add('visible'); // Will combine with 'wall' or 'floor'
+                
+                // Only create name labels for visible entities
+                if (item) {
+                    const nameLabel = document.createElement('div');
+                    nameLabel.classList.add('name-label');
+                    nameLabel.textContent = item.name;
+                    cell.appendChild(nameLabel);
+                }
+                if (enemy) {
+                    const nameLabel = document.createElement('div');
+                    nameLabel.classList.add('name-label');
+                    nameLabel.textContent = enemy.name;
+                    cell.appendChild(nameLabel);
+                }
             } else {
                 cell.classList.add('shadow'); // Will combine with 'wall' or 'floor'
-            }
-            
-            const item = items.find(i => i.x === x && i.y === y);
-            if (item) {
-                cell.classList.add('item');
-                cell.style.backgroundColor = item.color;
-                const nameLabel = document.createElement('div');
-                nameLabel.classList.add('name-label');
-                nameLabel.textContent = item.name;
-                cell.appendChild(nameLabel);
-            }
-
-            const enemy = enemies.find(e => e.x === x && e.y === y);
-            if (enemy) {
-                cell.classList.add('enemy');
-                cell.style.backgroundColor = 'red';
-                const nameLabel = document.createElement('div');
-                nameLabel.classList.add('name-label');
-                nameLabel.textContent = enemy.name;
-                cell.appendChild(nameLabel);
             }
         });
 
