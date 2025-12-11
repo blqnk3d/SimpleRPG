@@ -3,36 +3,76 @@
     grid-template-columns: repeat(25, 30px);
     grid-template-rows: repeat(25, 30px);
     border: 2px solid #666;
-    background-color: #000;
+    background-color: #000; /* Fallback for completely hidden */
 }
 
 .grid-cell {
     width: 30px;
     height: 30px;
-    background-color: #000; /* Default dark for all cells */
-    border: 1px solid #222;
-    box-sizing: border-box; /* Crucial for correct grid layout */
-}
-
-.grid-cell.visible {
-    background-color: #333;
-    border: 1px solid #444;
+    border: 1px solid transparent; /* Default transparent border */
+    box-sizing: border-box;
+    position: relative; /* For name labels */
+    overflow: hidden; /* Ensure content doesn't spill */
+    display: flex; /* For centering text if needed */
+    justify-content: center;
+    align-items: center;
 }
 
 .grid-cell.undiscovered {
-    background-color: #111; /* Even darker for undiscovered */
-    border: 1px solid #000;
+    background-color: #111;
+    border-color: #000;
 }
 
-.shadow {
-    background-color: #000; /* Dark for shadowed areas */
-    border: 1px solid #111;
+/* Base states (discovered but not necessarily visible) */
+.grid-cell.floor {
+    background-color: #333;
+    border-color: #222;
+}
+.grid-cell.wall {
+    background-color: #666;
+    border-color: #555;
 }
 
-.player {
-    background-color: blue;
+/* Shadowed states (discovered but outside current FOV) */
+.grid-cell.floor.shadow {
+    background-color: #222;
+    border-color: #111;
+}
+.grid-cell.wall.shadow {
+    background-color: #555;
+    border-color: #444;
 }
 
+/* Visible states (inside current FOV) */
+.grid-cell.floor.visible {
+    background-color: #333;
+    border-color: #444;
+}
+.grid-cell.wall.visible {
+    background-color: #666;
+    border-color: #777;
+}
+
+/* Special entities - these should override tile backgrounds */
+.grid-cell.player {
+    background-color: blue !important; /* !important to ensure override */
+    border-color: cyan !important;
+    z-index: 10;
+}
+
+.grid-cell.enemy {
+    background-color: red !important;
+    border-color: orange !important;
+    z-index: 9;
+}
+
+.grid-cell.item {
+    /* Item color is set inline in JS */
+    border-color: yellow !important;
+    z-index: 8;
+}
+
+/* General styles below this */
 .context-menu {
     position: absolute;
     z-index: 1000;
@@ -60,14 +100,6 @@
     background-color: #4a4a4a;
 }
 
-.wall {
-    background-color: #666;
-}
-
-.floor {
-    background-color: #333; /* Explicit floor color */
-}
-
 .name-label {
     position: absolute;
     bottom: 100%;
@@ -79,14 +111,5 @@
     border-radius: 3px;
     font-size: 10px;
     white-space: nowrap;
-}
-
-
-
-.enemy {
-    background-color: red;
-}
-
-.item {
-    background-color: green;
+    z-index: 20; /* Ensure name label is above everything */
 }

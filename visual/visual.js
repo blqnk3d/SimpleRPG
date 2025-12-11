@@ -196,40 +196,40 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.textContent = ''; // Clear any debug text content
 
             if (!discoveredCells.has(cellKey)) {
-                cell.classList.add('undiscovered'); // Add undiscovered class
+                cell.classList.add('undiscovered');
                 return;
             }
 
             if (map[index] === TILE.WALL) {
                 cell.classList.add('wall');
             } else {
-                cell.classList.add('floor'); // Add floor class
+                cell.classList.add('floor');
             }
             
             if (visibleCells.has(cellKey)) {
-                cell.classList.add('visible'); // Add visible class for currently lit areas
-
-                const item = items.find(i => i.x === x && i.y === y);
-                if (item) {
-                    cell.classList.add('item');
-                    cell.style.backgroundColor = item.color;
-                    const nameLabel = document.createElement('div');
-                    nameLabel.classList.add('name-label');
-                    nameLabel.textContent = item.name;
-                    cell.appendChild(nameLabel);
-                }
-
-                const enemy = enemies.find(e => e.x === x && e.y === y);
-                if (enemy) {
-                    cell.classList.add('enemy');
-                    cell.style.backgroundColor = 'red';
-                    const nameLabel = document.createElement('div');
-                    nameLabel.classList.add('name-label');
-                    nameLabel.textContent = enemy.name;
-                    cell.appendChild(nameLabel);
-                }
+                cell.classList.add('visible'); // Will combine with 'wall' or 'floor'
             } else {
-                cell.classList.add('shadow'); // Add shadow class for discovered but unlit areas
+                cell.classList.add('shadow'); // Will combine with 'wall' or 'floor'
+            }
+            
+            const item = items.find(i => i.x === x && i.y === y);
+            if (item) {
+                cell.classList.add('item');
+                cell.style.backgroundColor = item.color;
+                const nameLabel = document.createElement('div');
+                nameLabel.classList.add('name-label');
+                nameLabel.textContent = item.name;
+                cell.appendChild(nameLabel);
+            }
+
+            const enemy = enemies.find(e => e.x === x && e.y === y);
+            if (enemy) {
+                cell.classList.add('enemy');
+                cell.style.backgroundColor = 'red';
+                const nameLabel = document.createElement('div');
+                nameLabel.classList.add('name-label');
+                nameLabel.textContent = enemy.name;
+                cell.appendChild(nameLabel);
             }
         });
 
