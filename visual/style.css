@@ -1,0 +1,92 @@
+#grid-container {
+    display: grid;
+    grid-template-columns: repeat(25, 30px);
+    grid-template-rows: repeat(25, 30px);
+    border: 2px solid #666;
+    background-color: #000;
+}
+
+.grid-cell {
+    width: 30px;
+    height: 30px;
+    background-color: #000; /* Default dark for all cells */
+    border: 1px solid #222;
+    box-sizing: border-box; /* Crucial for correct grid layout */
+}
+
+.grid-cell.visible {
+    background-color: #333;
+    border: 1px solid #444;
+}
+
+.grid-cell.undiscovered {
+    background-color: #111; /* Even darker for undiscovered */
+    border: 1px solid #000;
+}
+
+.shadow {
+    background-color: #000; /* Dark for shadowed areas */
+    border: 1px solid #111;
+}
+
+.player {
+    background-color: blue;
+}
+
+.context-menu {
+    position: absolute;
+    z-index: 1000;
+    width: 150px;
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    display: none;
+}
+
+.context-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 5px;
+}
+
+.context-menu ul li {
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #eee;
+}
+
+.context-menu ul li:hover {
+    background-color: #4a4a4a;
+}
+
+.wall {
+    background-color: #666;
+}
+
+.floor {
+    background-color: #333; /* Explicit floor color */
+}
+
+.name-label {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+
+
+.enemy {
+    background-color: red;
+}
+
+.item {
+    background-color: green;
+}
