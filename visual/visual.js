@@ -136,10 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function traceLine(x0, y0, x1, y1) {
-        const dx = Math.abs(x1 - x0);
-        const dy = Math.abs(y1 - y0);
-        const sx = (x0 < x1) ? 1 : -1;
-        const sy = (y0 < y1) ? 1 : -1;
+        let dx = Math.abs(x1 - x0);
+        let dy = Math.abs(y1 - y0);
+        let sx = (x0 < x1) ? 1 : -1;
+        let sy = (y0 < y1) ? 1 : -1;
         let err = dx - dy;
 
         while (true) {
@@ -148,13 +148,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 discoveredCells.add(`${x0},${y0}`);
             }
 
-            if (isWall(x0, y0)) {
-                break;
+            // Strict diagonal wall checking
+            if (x0 !== playerPosition.x || y0 !== playerPosition.y) { // Don't block player's own cell
+                if (isWall(x0, y0)) {
+                    break;
+                }
+                if (dx > 0 && dy > 0 && err * 2 === dx - dy) { // Moving diagonally in current step (or just finished previous)
+                    // Check the two cardinal neighbors that were 'skipped' if this was a true diagonal
+                    if (isWall(x0 - sx, y0) && isWall(x0, y0 - sy)) {
+                        break; // Blocked by diagonal walls
+                    }
+                }
             }
+            
             if ((x0 === x1) && (y0 === y1)) {
                 break;
             }
-            const e2 = 2 * err;
+
+            let e2 = 2 * err;
             if (e2 > -dy) {
                 err -= dy;
                 x0 += sx;
