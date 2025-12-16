@@ -25,18 +25,23 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const monsters = [
-        { name: 'Schleim', level: 1},
-        { name: 'Ratte', level: 1},
-        { name: 'Goblin', level: 2},
-        { name: 'Wolf', level: 3}
+        { name: 'Schleim', level: 1, health: 20},
+        { name: 'Ratte', level: 1, health: 15},
+        { name: 'Goblin', level: 2, health: 30},
+        { name: 'Wolf', level: 3, health: 40}
     ];
 
     let enemies = []; // Enemies on current floor
     let items = []; // Items on current floor
 
     let playerPosition = {x:0, y:0}; // Player position on current floor
+    let playerHealth = 100;
+    let maxPlayerHealth = 100;
 
-
+    function updateHealthDisplay() {
+        document.getElementById('current-health').textContent = playerHealth;
+        document.getElementById('max-health').textContent = maxPlayerHealth;
+    }
 
 
     // Helper to check if a rectangle overlaps with any existing rooms
@@ -253,6 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         visibleCells.clear(); // Clear visibleCells, it will be recalculated by render
         render();
+        updateHealthDisplay();
     }
 
 
@@ -271,6 +277,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return map[y * gridSize + x] === TILE.WALL;
     }
+
+    function moveEnemies() {
+        enemies.forEach(enemy => {
+            let targetX = playerPosition.x;
+            let targetY = playerPosition.y;
+
+            let dx = targetX - enemy.x;
+            let dy = targetY - enemy.y;
+
+            let absDx = Math.abs(dx);
+            let absDy = Math.abs(dy);
+
+            let newEnemyX = enemy.x;
+            let newEnemyY = enemy.y;
+
+            if (absDx > absDy) { // Prioritize horizontal movement
+                newEnemyX += (dx > 0 ? 1 : -1);
+            } else { // Prioritize vertical movement or if distances are equal
+                newEnemyY += (dy > 0 ? 1 : -1);
+            }
+
+            // Check if the new position is a wall or occupied by another enemy
+            const newPosIndex = newEnemyY * gridSize + newEnemyX;
+            const isNewPosWall = map[newPosIndex] === TILE.WALL;
+            const isNewPosOccupiedByEnemy = enemies.some(e => e.x === newEnemyX && e.y === newEnemyY && e !== enemy);
+            const isNewPosOccupiedByPlayer = (newEnemyX === playerPosition.x && newEnemyY === playerPosition.y);
+
+
+            if (!isNewPosWall && !isNewPosOccupiedByEnemy && !isNewPosOccupiedByPlayer) {
+                enemy.x = newEnemyX;
+                enemy.y = newEnemyY;
+            }
+        });
+    }
+
 
     function traceLine(x0, y0, x1, y1) {
         let dx = Math.abs(x1 - x0);
@@ -427,6 +468,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const contextMenu = document.getElementById('context-menu');
+    const interactOption = document.getElementById('interact');
+    const openOption = document.getElementById('open');
+    let clickedCell = null;
+
+    gridContainer.addEventListener('contextmenu', (e) => {
+        e.preventDefault(); // Prevent the default context menu
+        clickedCell = e.target.closest('.grid-cell');
+        if (clickedCell) {
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = `${e.pageX}px`;
+            contextMenu.style.top = `${e.pageY}px`;
+        }
+    });
+
+    document.addEventListener('click', () => {
+        contextMenu.style.display = 'none'; // Hide context menu when clicking anywhere else
+    });
+
+    interactOption.addEventListener('click', () => {
+        if (clickedCell) {
+            const index = parseInt(clickedCell.dataset.index);
+            const x = index % gridSize;
+            const y = Math.floor(index / gridSize);
+            console.log(`Interacting with cell at (${x}, ${y})`);
+            // Implement specific interaction logic here
+            // For example, if there's an item, pick it up
+            // Or if there's an NPC, talk to them
+        }
+    });
+
+    openOption.addEventListener('click', () => {
+        if (clickedCell) {
+            const index = parseInt(clickedCell.dataset.index);
+            const x = index % gridSize;
+            const y = Math.floor(index / gridSize);
+            console.log(`Opening/Using item at cell (${x}, ${y})`);
+            // Implement specific "open" or "use" logic here
+        }
+    });
+
+
     document.addEventListener('keydown', (e) => {
         let newX = playerPosition.x;
         let newY = playerPosition.y;
@@ -436,6 +519,22 @@ document.addEventListener('DOMContentLoaded', () => {
             case 's': newY++; break;
             case 'a': newX--; break;
             case 'd': newX++; break;
+            case ' ': // Spacebar for attack
+                for (let i = enemies.length - 1; i >= 0; i--) {
+                    const enemy = enemies[i];
+                    if (Math.abs(enemy.x - playerPosition.x) <= 1 && Math.abs(enemy.y - playerPosition.y) <= 1) {
+                        enemy.health -= 20; // Player deals 20 damage
+                        if (enemy.health <= 0) {
+                            enemies.splice(i, 1);
+                        }
+                        // Attack ends the player's turn, so we'll re-render and wait for next input
+                        render();
+                        moveEnemies(); // Enemies move after player attacks
+                        render(); // Re-render after enemies move
+                        return; 
+                    }
+                }
+                break;
             case 'q':
                 if (map[playerPosition.y * gridSize + playerPosition.x] === TILE.STAIRS_UP) {
                     switchFloor(-1);
@@ -464,6 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else {
 
         }
+        moveEnemies(); // Enemies move after player moves
         render();
     });
 
@@ -479,4 +579,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     render();
+    updateHealthDisplay();
 });
