@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.getElementById('grid-container');
-    console.log('Grid container:', gridContainer); // Log the grid container
+
     const gridSize = 25;
     const fovRadius = 10;
     
@@ -37,33 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let playerPosition = {x:0, y:0}; // Player position on current floor
 
 
-    function printGridToConsole() {
-        console.log("--- Current Grid State (Floor " + (currentFloorIndex + 1) + ") ---");
-        let gridString = "";
-        for (let y = 0; y < gridSize; y++) {
-            let row = "";
-            for (let x = 0; x < gridSize; x++) {
-                if (playerPosition.x === x && playerPosition.y === y) {
-                    row += "P ";
-                } else if (enemies.some(e => e.x === x && e.y === y)) {
-                    row += "E ";
-                } else if (items.some(i => i.x === x && i.y === y)) {
-                    row += "I ";
-                } else if (map[y * gridSize + x] === TILE.WALL) {
-                    row += "# ";
-                } else if (map[y * gridSize + x] === TILE.STAIRS_UP) {
-                    row += "U ";
-                } else if (map[y * gridSize + x] === TILE.STAIRS_DOWN) {
-                    row += "D ";
-                } else {
-                    row += ". ";
-                }
-            }
-            gridString += row + "\n";
-        }
-        console.log(gridString);
-        console.log("--------------------------");
-    }
+
 
     // Helper to check if a rectangle overlaps with any existing rooms
     function overlaps(newRoom, rooms) {
@@ -244,12 +218,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (currentFloorIndex < 0) {
             currentFloorIndex = 0;
-            console.log("Already on the top floor!");
+
             return;
         }
         if (currentFloorIndex >= dungeonFloors.length) {
             currentFloorIndex = dungeonFloors.length - 1;
-            console.log("Already on the bottom floor!");
+
             return;
         }
 
@@ -356,91 +330,101 @@ document.addEventListener('DOMContentLoaded', () => {
     function render() {
         calculateFov();
         const cells = document.querySelectorAll('.grid-cell');
-        console.log('Number of cells found by querySelectorAll:', cells.length); // Log cells found
         if (cells.length === 0) {
-            console.error('No grid cells found to render!');
+
             return;
         }
 
         document.querySelectorAll('.name-label').forEach(label => label.remove());
 
-        cells.forEach((cell, index) => {
-            const x = index % gridSize;
-            const y = Math.floor(index / gridSize);
+        for (let i = 0; i < cells.length; i++) {
+            const cell = cells[i];
+            const x = i % gridSize;
+            const y = Math.floor(i / gridSize);
             const cellKey = `${x},${y}`;
             
-            cell.className = 'grid-cell';
-            cell.style.backgroundColor = '';
-            cell.textContent = '';
+            const isDiscovered = discoveredCells.has(cellKey);
+            const isVisible = visibleCells.has(cellKey);
 
-            if (!discoveredCells.has(cellKey)) {
-                cell.classList.add('undiscovered');
-                cell.textContent = '';
-                return;
-            }
-
+            let classes = ['grid-cell'];
             let cellContent = '';
-            
-            if (map[index] === TILE.WALL) {
-                cell.classList.add('wall');
-                cellContent = 'W';
-            } else if (map[index] === TILE.STAIRS_UP) {
-                cell.classList.add('stairs-up');
-                cellContent = 'U';
-            } else if (map[index] === TILE.STAIRS_DOWN) {
-                cell.classList.add('stairs-down');
-                cellContent = 'D';
-            }
-            else {
-                cell.classList.add('floor');
-                cellContent = 'F';
-            }
-            
-            const item = items.find(i => i.x === x && i.y === y);
-            const enemy = enemies.find(e => e.x === x && e.y === y);
+            cell.style.backgroundColor = '';
 
-            if (item && visibleCells.has(cellKey)) {
-                cell.classList.add('item');
-                cell.style.backgroundColor = item.color;
-                cellContent = 'I';
-            }
-            if (enemy && visibleCells.has(cellKey)) {
-                cell.classList.add('enemy');
-                cell.style.backgroundColor = 'red';
-                cellContent = 'E';
-            }
-            if (playerPosition.x === x && playerPosition.y === y) {
-                cellContent = 'P';
-            }
-
-            cell.textContent = cellContent;
-            
-            if (visibleCells.has(cellKey)) {
-                cell.classList.add('visible');
-                
-                if (item) {
-                    const nameLabel = document.createElement('div');
-                    nameLabel.classList.add('name-label');
-                    nameLabel.textContent = item.name;
-                    cell.appendChild(nameLabel);
-                }
-                if (enemy) {
-                    const nameLabel = document.createElement('div');
-                    nameLabel.classList.add('name-label');
-                    nameLabel.textContent = enemy.name;
-                    cell.appendChild(nameLabel);
-                }
+            if (!isDiscovered) {
+                classes.push('undiscovered');
             } else {
-                cell.classList.add('shadow');
-            }
-        });
+                if (map[i] === TILE.WALL) {
+                    classes.push('wall');
+                    cellContent = '#';
+                } else if (map[i] === TILE.STAIRS_UP) {
+                    classes.push('stairs-up');
+                    cellContent = '↑';
+                } else if (map[i] === TILE.STAIRS_DOWN) {
+                    classes.push('stairs-down');
+                    cellContent = '↓';
+                } else {
+                    classes.push('floor');
+                    cellContent = '.';
+                }
 
-        const playerIndex = playerPosition.y * gridSize + playerPosition.x;
-        if (cells[playerIndex]) {
-            cells[playerIndex].classList.add('player');
-            cells[playerIndex].style.backgroundColor = 'blue'; 
+                const item = items.find(i => i.x === x && i.y === y);
+                const enemy = enemies.find(e => e.x === x && e.y === y);
+
+                if (item && isVisible) {
+                    classes.push('item');
+                    cell.style.backgroundColor = item.color;
+                    cellContent = 'i';
+                }
+                if (enemy && isVisible) {
+                    classes.push('enemy');
+                    cell.style.backgroundColor = 'red';
+                    cellContent = 'e';
+                }
+                if (playerPosition.x === x && playerPosition.y === y) {
+                    cellContent = '@';
+                }
+
+                if (isVisible) {
+                    classes.push('visible');
+                    
+                    let labelText = null;
+                    if (item) {
+                        labelText = item.name;
+                    }
+                    if (enemy) {
+                        labelText = enemy.name;
+                    }
+                    if (map[i] === TILE.STAIRS_UP) {
+                        labelText = 'Stairs up';
+                    }
+                    if (map[i] === TILE.STAIRS_DOWN) {
+                        labelText = 'Stairs down';
+                    }
+
+                    if (labelText) {
+                        const nameLabel = document.createElement('div');
+                        nameLabel.classList.add('name-label');
+                        nameLabel.textContent = labelText;
+                        cell.appendChild(nameLabel);
+                    }
+                } else {
+                    classes.push('shadow');
+                }
+            }
+
+            if (playerPosition.x === x && playerPosition.y === y) {
+                classes.push('player');
+                cell.style.backgroundColor = 'blue';
+            }
+
+            const newClassName = classes.join(' ');
+            if (cell.className !== newClassName) {
+                cell.className = newClassName;
+            }
+            if (cell.textContent !== cellContent) {
+                cell.textContent = cellContent;
+            }
         }
-        printGridToConsole();
     }
 
     document.addEventListener('keydown', (e) => {
@@ -472,19 +456,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isWall(newX, newY) || newTile === TILE.STAIRS_UP || newTile === TILE.STAIRS_DOWN) {
                 playerPosition.x = newX;
                 playerPosition.y = newY;
-                console.log(`Player moved to (${playerPosition.x}, ${playerPosition.y})`);
+
             } else {
-                console.log(`Movement blocked by wall at (${newX}, ${newY})`);
+
             }
         }
         else {
-            console.log(`Movement blocked by grid boundary at (${newX}, ${newY})`);
+
         }
         render();
     });
 
     // Initial render
-    console.log('Before initial render, gridContainer:', gridContainer);
+
     for (let i = 0; i < gridSize * gridSize; i++) {
         const cell = document.createElement('div');
         cell.classList.add('grid-cell');
@@ -492,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cell.style.position = 'relative'; 
         gridContainer.appendChild(cell);
     }
-    console.log('Number of grid cells created and appended before initial render:', gridContainer.children.length);
-    if (gridContainer.children.length > 0) console.log('First grid cell created:', gridContainer.children[0]);
+
+
     render();
 });
